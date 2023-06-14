@@ -7,7 +7,23 @@ enum Importance: String, CaseIterable {
 }
 
 extension TodoItem {
-//    var json: Any
+    var json: Any {
+        var dict: [String: Any] = ["id": self.id,
+                                   "text": self.text,
+                                   "deadline": self.deadline,
+                                   "done": self.done,
+                                   "created": self.created]
+        if self.importance != .regular {
+            dict["importance"] = self.importance
+        }
+        
+        if let deadline = self.deadline {
+            dict["deadline"] = self.deadline
+        }
+        if let changed = self.changed {
+            dict["changed"] = self.changed
+        }
+    }
 
     static func parse(json: Any) -> TodoItem? {
         var item: TodoItem?
@@ -16,7 +32,6 @@ extension TodoItem {
         }
         
         guard let text = json["text"] as? String,
-              let importanceStr = json["importance"] as? String,
               let done = json["done"] as? Bool,
               let createdTimestamp = json["created"] as? Double
         else {
@@ -25,7 +40,11 @@ extension TodoItem {
         let id = json["id"] as? String ?? UUID().uuidString
         let created =  Date(timeIntervalSince1970: createdTimestamp)
 
-        let importance = Importance(rawValue: importanceStr) ?? Importance.regular
+        if let importanceStr = json["importance"] as? String {
+            let importance = Importance(rawValue: importanceStr) ?? Importance.regular
+        } else {
+            let importance = Importance.regular
+        }
         
         let deadline: Date?
         if let deadlineTimestamp = json["deadline"] as? Double {
@@ -70,7 +89,7 @@ struct TodoItem {
 //class FileCache {
 //
 //}
-//
+
 let j: [String: Any] = ["id": 12345,
                         "text": "Сделать домашнее задание",
                         "importance": "important",
