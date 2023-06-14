@@ -14,7 +14,7 @@ extension TodoItem {
         guard let json = json as? [String: Any] else {
             return nil
         }
-
+        
         guard let text = json["text"] as? String,
               let importanceStr = json["importance"] as? String,
               let done = json["done"] as? Bool,
@@ -71,12 +71,18 @@ struct TodoItem {
 //
 //}
 //
-//let j = "{\"id\": \"12345\",\"text\": \"Сделать домашнее задание\", \"importance\": \"important\", \"deadline\": \"2022-05-30T12:00:00Z\", \"done\": false, \"created\": \"2022-05-28T08:30:00Z\", \"changed\": \"2022-05-29T14:20:00Z\" }"
-var dictJson: [String: Any]  = ["id": 1,
-                                "text": "String",
-                                "importance": "important",
-                                "done": true,
-                                "created": 1234]
-let item: TodoItem? = TodoItem.parse(json: dictJson)
-print("dewdwe")
+let j: [String: Any] = ["id": 12345,
+                        "text": "Сделать домашнее задание",
+                        "importance": "important",
+                        "deadline": 2022.0,
+                        "done": false,
+                        "created": 2022.0,
+                        "changed": 2022.0]
+
+//var dictJson: [String: Any]  = ["id": 1,
+//                                "text": "String",
+//                                "importance": "important",
+//                                "done": true,
+//                                "created": 1234.0]
+let item: TodoItem? = TodoItem.parse(json: j)
 print(item)
