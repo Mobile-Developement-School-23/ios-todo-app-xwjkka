@@ -1,35 +1,37 @@
 import Foundation
 
-enum Importance {
-    case unimportant
-    case regular
-    case important
-}
-
-extension DateFormatter {
-    static let iso8601: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        return formatter
-    }()
+enum Importance: String {
+    case unimportant = "unimportant"
+    case regular = "regular"
+    case important = "important"
 }
 
 extension TodoItem {
 //    var json: Any
 
     static func parse(json: Any) -> TodoItem? {
-        var data: Data; var item: TodoItem?
+        var data = Data(); var item: TodoItem?
         if let jsonString = json as? String {
             data = Data(jsonString.utf8)
-        } else {}
+        } else if let jsonData = json as? Data {
+            data = jsonData
+        }
         do {
             if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-//                let item = TodoItem.init(text: "haha", importance: Importance.unimportant, created: DateFormatter.iso8601.date(from:"2022-05-29T14:20:00Z")!)
+                item = try TodoItem.init(id: json["id"] as? String, text: json["text"] as! String, importance: json["importance"] as! String, deadline: json["deadline"] as? Date, done: json["done"] as! Bool, created: json["created"] as! Date, changed: json["changed"] as? Date)
+                
+//                guard let id = json["id"] as String else{
+//                    let id
+//                }
+
+//                item = try TodoItem.init(id: json["id"] as? String ?? UUID().uuidString, text: json["text"] as! String, importance: Importance.unimportant, deadline: json["deadline"] as? Date ?? nil, done: json["done"] as? Bool ?? false, created: json["created"] as! Date, changed: json["changed"] as? Date ?? nil)
+            } else {
+                print("Invalid JSON")
+                item = nil
             }
         } catch let error as NSError {
             print("Failed to load: \(error.localizedDescription)")
+            item = nil
         }
         return item
     }
@@ -45,21 +47,30 @@ struct TodoItem {
     let created: Date
     let changed: Date?
     
-    init(id: String = UUID().uuidString, text: String, importance: Importance, deadline: Date? = nil, done: Bool = false, created: Date, changed: Date? = nil) {
+    init(id: String? = nil, text: String, importance: String, deadline: Date? = nil, done: Bool, created: Date, changed: Date? = nil) {
+        if let id = id {
             self.id = id
-            self.text = text
+        } else {
+            self.id = UUID().uuidString
+        }
+        self.text = text
+        
+        if let importance = Importance(rawValue: importance) {
             self.importance = importance
-            self.deadline = deadline
-            self.done = done
-            self.created = created
-            self.changed = changed
+        } else {
+            self.importance = Importance.regular
+        }
+        
+        self.deadline = deadline
+        self.done = done
+        self.created = created
+        self.changed = changed
     }
 }
 
 //class FileCache {
 //
 //}
-//let j = "{\"id\": \"12345\",\"text\": \"Сделать домашнее задание\", \"importance\": \"important\", \"deadline\": \"2022-05-30T12:00:00Z\", \"done\": false, \"created\": \"2022-05-28T08:30:00Z\", \"changed\": \"2022-05-29T14:20:00Z\" }"
-//let data = Data(j.utf8)
-let item: TodoItem = TodoItem.parse(json: data)!
+let j = "{\"id\": \"12345\",\"text\": \"Сделать домашнее задание\", \"importance\": \"important\", \"deadline\": \"2022-05-30T12:00:00Z\", \"done\": false, \"created\": \"2022-05-28T08:30:00Z\", \"changed\": \"2022-05-29T14:20:00Z\" }"
+let item: TodoItem = TodoItem.parse(json: j)!
 print(item)
