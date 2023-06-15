@@ -122,9 +122,29 @@ class FileCache {
         return pathURL
     }
 
-//    func loadFromFile(path: String = "ListToDo") {
-//
-//    }
+    func loadFromFile(paths: [String]) {
+        if let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            for i in paths {
+                let filePath = documentDirectory.appendingPathComponent(i)
+                
+                do {
+                    let data = try Data(contentsOf: filePath, options: .mappedIfSafe)
+                    let json = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
+                    if let jsonArr = json as? [Any] {
+                        for item in jsonArr {
+                            if let ToDoItem = TodoItem.parse(json: item) {
+                                self.addToDo(TodoItem: ToDoItem)
+                            }
+                        }
+                    }
+
+                } catch {
+                    print("Error loading items from file: \(error)")
+                }
+
+            }
+        }
+    }
 }
 
 let j: [String: Any] = ["id": "12345",
@@ -146,8 +166,10 @@ let item2: TodoItem? = TodoItem.parse(json: j2)
 //print(item)
 //print(item2)
 var a = FileCache()
-if let item = item, let item2 = item2 {
-    a.addToDo(TodoItem: item)
-    a.addToDo(TodoItem: item2)
-    print(a.saveToFile())
-}
+a.loadFromFile(paths: ["ListToDo.json"])
+print(a.ListToDo)
+//if let item = item, let item2 = item2 {
+//    a.addToDo(TodoItem: item)
+//    a.addToDo(TodoItem: item2)
+//    print(a.saveToFile())
+//}
