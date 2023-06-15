@@ -10,18 +10,16 @@ extension TodoItem {
     var json: Any {
         var dict: [String: Any] = ["id": self.id,
                                    "text": self.text,
-//                                   "deadline": self.deadline,
                                    "done": self.done,
-                                   "created": self.created]
+                                   "created": self.created.timeIntervalSince1970]
         if self.importance != .regular {
-            dict["importance"] = self.importance
+            dict["importance"] = self.importance.rawValue
         }
-        
         if let deadline = self.deadline {
-            dict["deadline"] = deadline
+            dict["deadline"] = deadline.timeIntervalSince1970
         }
         if let changed = self.changed {
-            dict["changed"] = changed
+            dict["changed"] = changed.timeIntervalSince1970
         }
         return dict
     }
@@ -108,17 +106,19 @@ class FileCache {
             return nil
         }
         let pathURL = documentDirectory.appendingPathComponent(path)
-        
+
         do {
-//            try FileManager.default.createDirectory(at: pathURL, withIntermediateDirectories: true)
-            var arrayToDoJson =  [Any]()
-            arrayToDoJson.append(contentsOf: self.ListToDo)
-            let dataJson = try JSONSerialization.data(withJSONObject: arrayToDoJson, options: [])
-            try? dataJson.write(to: pathURL)
+            var arrayToDoJson =  Array<Any>()
+            for item in self.ListToDo {
+                arrayToDoJson.append(item.json)
+            }
+            if let dataJson = try? JSONSerialization.data(withJSONObject: arrayToDoJson, options: .prettyPrinted) {
+                try dataJson.write(to: pathURL)
+            }
         } catch {
-            print("Error saving file: \(error)")
+            print("Error saving file: ")
         }
-        
+
         return pathURL
     }
 
@@ -149,10 +149,5 @@ var a = FileCache()
 if let item = item, let item2 = item2 {
     a.addToDo(TodoItem: item)
     a.addToDo(TodoItem: item2)
-//    for i in a.ListToDo {
-//        print(i.json)
-//    }
-//    print(a.ListToDo)
     print(a.saveToFile())
 }
-//print(item)
