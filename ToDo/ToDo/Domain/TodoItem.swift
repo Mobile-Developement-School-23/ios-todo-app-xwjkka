@@ -10,7 +10,7 @@ extension TodoItem {
     var json: Any {
         var dict: [String: Any] = ["id": self.id,
                                    "text": self.text,
-                                   "deadline": self.deadline,
+//                                   "deadline": self.deadline,
                                    "done": self.done,
                                    "created": self.created]
         if self.importance != .regular {
@@ -18,11 +18,12 @@ extension TodoItem {
         }
         
         if let deadline = self.deadline {
-            dict["deadline"] = self.deadline
+            dict["deadline"] = deadline
         }
         if let changed = self.changed {
-            dict["changed"] = self.changed
+            dict["changed"] = changed
         }
+        return dict
     }
 
     static func parse(json: Any) -> TodoItem? {
@@ -40,10 +41,9 @@ extension TodoItem {
         let id = json["id"] as? String ?? UUID().uuidString
         let created =  Date(timeIntervalSince1970: createdTimestamp)
 
+        var importance = Importance.regular
         if let importanceStr = json["importance"] as? String {
-            let importance = Importance(rawValue: importanceStr) ?? Importance.regular
-        } else {
-            let importance = Importance.regular
+            importance = Importance(rawValue: importanceStr) ?? Importance.regular
         }
         
         let deadline: Date?
@@ -86,11 +86,48 @@ struct TodoItem {
     }
 }
 
-//class FileCache {
-//
-//}
+class FileCache {
+    private (set) var ListToDo: [TodoItem] = []
+    
+    func addToDo(TodoItem: TodoItem) {
+        if let index = ListToDo.firstIndex(where: { $0.id == TodoItem.id }) {
+            ListToDo[index] = TodoItem
+        } else {
+            ListToDo.append(TodoItem)
+        }
+    }
 
-let j: [String: Any] = ["id": 12345,
+    func deleteToDo(TodoItem: TodoItem) {
+        if let index = ListToDo.firstIndex(where: { $0.id == TodoItem.id }) {
+            ListToDo.remove(at: index)
+        }
+    }
+    
+    func saveToFile(path: String = "ListToDo.json") -> URL? {
+        guard let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return nil
+        }
+        let pathURL = documentDirectory.appendingPathComponent(path)
+        
+        do {
+//            try FileManager.default.createDirectory(at: pathURL, withIntermediateDirectories: true)
+            var arrayToDoJson =  [Any]()
+            arrayToDoJson.append(contentsOf: self.ListToDo)
+            let dataJson = try JSONSerialization.data(withJSONObject: arrayToDoJson, options: [])
+            try? dataJson.write(to: pathURL)
+        } catch {
+            print("Error saving file: \(error)")
+        }
+        
+        return pathURL
+    }
+
+//    func loadFromFile(path: String = "ListToDo") {
+//
+//    }
+}
+
+let j: [String: Any] = ["id": "12345",
                         "text": "Сделать домашнее задание",
                         "importance": "important",
                         "deadline": 2022.0,
@@ -98,10 +135,24 @@ let j: [String: Any] = ["id": 12345,
                         "created": 2022.0,
                         "changed": 2022.0]
 
-//var dictJson: [String: Any]  = ["id": 1,
-//                                "text": "String",
-//                                "importance": "important",
-//                                "done": true,
-//                                "created": 1234.0]
+var j2: [String: Any]  = ["id": "1",
+                          "text": "String",
+                          "importance": "important",
+                          "done": true,
+                          "created": 1234.0]
 let item: TodoItem? = TodoItem.parse(json: j)
-print(item)
+let item2: TodoItem? = TodoItem.parse(json: j2)
+//
+//print(item)
+//print(item2)
+var a = FileCache()
+if let item = item, let item2 = item2 {
+    a.addToDo(TodoItem: item)
+    a.addToDo(TodoItem: item2)
+//    for i in a.ListToDo {
+//        print(i.json)
+//    }
+//    print(a.ListToDo)
+    print(a.saveToFile())
+}
+//print(item)
