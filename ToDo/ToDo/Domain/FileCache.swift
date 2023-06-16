@@ -62,7 +62,6 @@ class FileCache {
         }
     }
     
-    
     func saveToFileCSV(path: String = "ListToDo.csv") -> URL? {
         guard let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
             return nil
@@ -74,9 +73,7 @@ class FileCache {
             for item in self.ListToDo {
                 fileCSV.append(item.csv)
             }
-            
             try fileCSV.write(to: pathURL, atomically: true, encoding: .utf8)
-            
         } catch {
             print("Error saving file: \(error)")
         }
@@ -88,9 +85,9 @@ class FileCache {
         if let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
             for i in paths {
                 let filePath = documentDirectory.appendingPathComponent(i)
-
+                
                 do {
-                    let fileCSV = try String(contentsOfFile: filePath, encoding: .utf8)
+                    let fileCSV = try String(contentsOf: filePath)
                     var rowsCSV = fileCSV.split(separator: "\n").map{ String($0) }
                     rowsCSV.removeFirst()
                     

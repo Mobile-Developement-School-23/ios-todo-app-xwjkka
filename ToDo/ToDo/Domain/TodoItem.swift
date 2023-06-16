@@ -62,12 +62,22 @@ extension TodoItem {
 
 extension TodoItem {
     var csv: String {
-        var importance = ""
+        var importance = ""; var deadlineStr = ""; var changedStr = ""
         if self.importance != Importance.regular {
             importance = self.importance.rawValue
         }
+        if let deadline = self.deadline {
+            deadlineStr = String(deadline.timeIntervalSince1970)
+        }
+        if let changed = self.changed {
+            changedStr = String(changed.timeIntervalSince1970)
+        }
         
-        let csvComponents = [id, text, importance, Double(deadline?.timeIntervalSince1970 ?? 0) as? String ?? "", String(done), String(created.timeIntervalSince1970), Double(changed?.timeIntervalSince1970 ?? 0) as? String ?? ""] as [String]
+        let csvComponents = [id, text, importance,
+                             deadlineStr,
+                             String(done),
+                             String(created.timeIntervalSince1970),
+                             changedStr] as [String]
         var csvStr = csvComponents.joined(separator: ";")
         csvStr.append("\n")
         return csvStr
@@ -165,4 +175,3 @@ struct TodoItem {
             self.changed = changed
     }
 }
-
