@@ -61,4 +61,49 @@ class FileCache {
             }
         }
     }
+    
+    
+    func saveToFileCSV(path: String = "ListToDo.csv") -> URL? {
+        guard let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return nil
+        }
+        let pathURL = documentDirectory.appendingPathComponent(path)
+
+        do {
+            var fileCSV = "id;text;importance;deadline;done;created;changed;\n"
+            for item in self.ListToDo {
+                fileCSV.append(item.csv)
+            }
+            
+            try fileCSV.write(to: pathURL, atomically: true, encoding: .utf8)
+            
+        } catch {
+            print("Error saving file: \(error)")
+        }
+
+        return pathURL
+    }
+
+    func loadFromFileCSV(paths: [String]) {
+        if let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            for i in paths {
+                let filePath = documentDirectory.appendingPathComponent(i)
+
+                do {
+                    let fileCSV = try String(contentsOfFile: filePath, encoding: .utf8)
+                    var rowsCSV = fileCSV.split(separator: "\n").map{ String($0) }
+                    rowsCSV.removeFirst()
+                    
+                    for item in rowsCSV {
+                        if let ToDoItem = TodoItem.parse(csv: item) {
+                            self.addToDo(TodoItem: ToDoItem)
+                        }
+                    }
+                } catch {
+                    print("Error loading items from file: \(error)")
+                }
+
+            }
+        }
+    }
 }
