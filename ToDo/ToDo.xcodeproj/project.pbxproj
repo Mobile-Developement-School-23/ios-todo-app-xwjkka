@@ -14,8 +14,12 @@
 		0AA441E22A3CB58B00E337B1 /* ToDoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA441E12A3CB58B00E337B1 /* ToDoTests.swift */; };
 		0AA441EC2A3CB58B00E337B1 /* ToDoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA441EB2A3CB58B00E337B1 /* ToDoUITests.swift */; };
 		0AA441EE2A3CB58B00E337B1 /* ToDoUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA441ED2A3CB58B00E337B1 /* ToDoUITestsLaunchTests.swift */; };
-		0AA441FB2A3CB7B500E337B1 /* Domain in Resources */ = {isa = PBXBuildFile; fileRef = 0AA441FA2A3CB7B500E337B1 /* Domain */; };
-		0AA441FC2A3CB7B500E337B1 /* Domain in Resources */ = {isa = PBXBuildFile; fileRef = 0AA441FA2A3CB7B500E337B1 /* Domain */; };
+		0AA441FB2A3CB7B500E337B1 /* Domain in Resources */ = {isa = PBXBuildFile; fileRef = 0AA441FA2A3CB7B500E337B1 /* Domain */; settings = {ASSET_TAGS = (New, ); }; };
+		0AA441FC2A3CB7B500E337B1 /* Domain in Resources */ = {isa = PBXBuildFile; fileRef = 0AA441FA2A3CB7B500E337B1 /* Domain */; settings = {ASSET_TAGS = (New, ); }; };
+		0AA441FF2A3CDCA100E337B1 /* t.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA441FE2A3CDCA100E337B1 /* t.swift */; };
+		0AA442002A3CDCA100E337B1 /* t.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA441FE2A3CDCA100E337B1 /* t.swift */; };
+		0AA442022A3CDCC100E337B1 /* t2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA442012A3CDCC100E337B1 /* t2.swift */; };
+		0AA442032A3CDCC100E337B1 /* t2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA442012A3CDCC100E337B1 /* t2.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +51,8 @@
 		0AA441EB2A3CB58B00E337B1 /* ToDoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToDoUITests.swift; sourceTree = "<group>"; };
 		0AA441ED2A3CB58B00E337B1 /* ToDoUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToDoUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		0AA441FA2A3CB7B500E337B1 /* Domain */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Domain; sourceTree = "<group>"; };
+		0AA441FE2A3CDCA100E337B1 /* t.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = t.swift; sourceTree = "<group>"; };
+		0AA442012A3CDCC100E337B1 /* t2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = t2.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +108,8 @@
 				0AA441D22A3CB58900E337B1 /* ContentView.swift */,
 				0AA441D42A3CB58B00E337B1 /* Assets.xcassets */,
 				0AA441D62A3CB58B00E337B1 /* Preview Content */,
+				0AA441FE2A3CDCA100E337B1 /* t.swift */,
+				0AA442012A3CDCC100E337B1 /* t2.swift */,
 			);
 			path = ToDo;
 			sourceTree = "<group>";
@@ -194,6 +202,9 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
+				KnownAssetTags = (
+					New,
+				);
 				LastSwiftUpdateCheck = 1420;
 				LastUpgradeCheck = 1420;
 				TargetAttributes = {
@@ -263,6 +274,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0AA441FF2A3CDCA100E337B1 /* t.swift in Sources */,
+				0AA442022A3CDCC100E337B1 /* t2.swift in Sources */,
 				0AA441D32A3CB58900E337B1 /* ContentView.swift in Sources */,
 				0AA441D12A3CB58900E337B1 /* ToDoApp.swift in Sources */,
 			);
@@ -272,6 +285,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0AA442002A3CDCA100E337B1 /* t.swift in Sources */,
+				0AA442032A3CDCC100E337B1 /* t2.swift in Sources */,
 				0AA441E22A3CB58B00E337B1 /* ToDoTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
