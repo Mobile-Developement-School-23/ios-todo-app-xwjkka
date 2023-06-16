@@ -10,7 +10,7 @@ class FileCache {
             ListToDo.append(TodoItem)
         }
     }
-
+    
     func deleteToDo(TodoItem: TodoItem) {
         if let index = ListToDo.firstIndex(where: { $0.id == TodoItem.id }) {
             ListToDo.remove(at: index)
@@ -22,7 +22,7 @@ class FileCache {
             return nil
         }
         let pathURL = documentDirectory.appendingPathComponent(path)
-
+        
         do {
             var arrayToDoJson =  Array<Any>()
             for item in self.ListToDo {
@@ -34,10 +34,10 @@ class FileCache {
         } catch {
             print("Error saving file: ")
         }
-
+        
         return pathURL
     }
-
+    
     func loadFromFile(paths: [String]) {
         if let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
             for i in paths {
@@ -53,11 +53,11 @@ class FileCache {
                             }
                         }
                     }
-
+                    
                 } catch {
                     print("Error loading items from file: \(error)")
                 }
-
+                
             }
         }
     }
@@ -67,7 +67,7 @@ class FileCache {
             return nil
         }
         let pathURL = documentDirectory.appendingPathComponent(path)
-
+        
         do {
             var fileCSV = "id;text;importance;deadline;done;created;changed;\n"
             for item in self.ListToDo {
@@ -77,10 +77,10 @@ class FileCache {
         } catch {
             print("Error saving file: \(error)")
         }
-
+        
         return pathURL
     }
-
+    
     func loadFromFileCSV(paths: [String]) {
         if let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
             for i in paths {
@@ -99,7 +99,7 @@ class FileCache {
                 } catch {
                     print("Error loading items from file: \(error)")
                 }
-
+                
             }
         }
     }

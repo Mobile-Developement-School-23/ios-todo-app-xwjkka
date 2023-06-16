@@ -88,7 +88,9 @@ extension TodoItem {
         for var i in 0..<csv.count {
             var temp: String = ""
             if csv[csv.index(csv.startIndex, offsetBy: i)] == ";" || i == 0 {
-                if i != 0 { i += 1 }
+                if i != 0 {
+                    i += 1
+                }
                 while (i < csv.count && csv[csv.index(csv.startIndex, offsetBy: i)] != ";") {
                     temp += String(csv[csv.index(csv.startIndex, offsetBy: i)])
                     i += 1
@@ -152,10 +154,6 @@ extension TodoItem {
     }
 }
 
-
-
-
-
 struct TodoItem {
     let id: String
     let text: String
@@ -165,7 +163,9 @@ struct TodoItem {
     let created: Date
     let changed: Date?
 
-    init(id: String, text: String, importance: Importance, deadline: Date?, done: Bool, created: Date, changed: Date?) {
+    init(id: String = UUID().uuidString, text: String,
+         importance: Importance, deadline: Date? = nil, done: Bool = false,
+         created: Date, changed: Date? = nil) {
             self.id = id
             self.text = text
             self.importance = importance
