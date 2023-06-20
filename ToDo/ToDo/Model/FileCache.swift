@@ -3,18 +3,16 @@ import Foundation
 class FileCache {
     private (set) var ListToDo: [TodoItem] = []
     
-    func addToDo(TodoItem: TodoItem) {
-        if let index = ListToDo.firstIndex(where: { $0.id == TodoItem.id }) {
-            ListToDo[index] = TodoItem
+    func addToDo(_ item: TodoItem) {
+        if let index = ListToDo.firstIndex(where: { $0.id == item.id }) {
+            ListToDo[index] = item
         } else {
-            ListToDo.append(TodoItem)
+            ListToDo.append(item)
         }
     }
     
-    func deleteToDo(TodoItem: TodoItem) {
-        if let index = ListToDo.firstIndex(where: { $0.id == TodoItem.id }) {
-            ListToDo.remove(at: index)
-        }
+    func deleteToDo(_ id: String) {
+        ListToDo.removeAll(where: { $0.id == id })
     }
     
     func saveToFile(path: String = "ListToDo.json") -> URL? {
@@ -49,7 +47,7 @@ class FileCache {
                     if let jsonArr = json as? [Any] {
                         for item in jsonArr {
                             if let ToDoItem = TodoItem.parse(json: item) {
-                                self.addToDo(TodoItem: ToDoItem)
+                                self.addToDo(ToDoItem)
                             }
                         }
                     }
@@ -70,9 +68,7 @@ class FileCache {
         
         do {
             var fileCSV = "id;text;importance;deadline;done;created;changed;\n"
-            for item in self.ListToDo {
-                fileCSV.append(item.csv)
-            }
+            fileCSV += ListToDo.map({ $0.csv }).joined(separator: "\n")
             try fileCSV.write(to: pathURL, atomically: true, encoding: .utf8)
         } catch {
             print("Error saving file: \(error)")
@@ -93,11 +89,11 @@ class FileCache {
                     
                     for item in rowsCSV {
                         if let ToDoItem = TodoItem.parse(csv: item) {
-                            self.addToDo(TodoItem: ToDoItem)
+                            self.addToDo(ToDoItem)
                         }
                     }
                 } catch {
-                    print("Error loading items from file: \(error)")
+                    print("Error loading items from file: \(FileCacheError.dataParsingFailed)")
                 }
                 
             }

@@ -1,8 +1,9 @@
-import SwiftUI
+//import SwiftUI
+
+import UIKit
 
 @main
 struct ToDoApp: App {
-    var a: TodoItem?
     var body: some Scene {
         WindowGroup {
             ContentView()
