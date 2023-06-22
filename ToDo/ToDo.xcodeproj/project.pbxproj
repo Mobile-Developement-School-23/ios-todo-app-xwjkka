@@ -21,6 +21,8 @@
 		0AD5D24D2A41FC1B000E826B /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD5D2482A41FC1B000E826B /* Extensions.swift */; };
 		0AD5D24E2A41FC1B000E826B /* FileCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD5D2492A41FC1B000E826B /* FileCache.swift */; };
 		0AD5D24F2A41FC1B000E826B /* FileCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD5D2492A41FC1B000E826B /* FileCache.swift */; };
+		0AD5D2512A448880000E826B /* ToDoItemViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD5D2502A448880000E826B /* ToDoItemViewController.swift */; };
+		0AD5D2522A448880000E826B /* ToDoItemViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD5D2502A448880000E826B /* ToDoItemViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +58,7 @@
 		0AD5D2472A41FC1B000E826B /* Objects.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Objects.swift; sourceTree = "<group>"; };
 		0AD5D2482A41FC1B000E826B /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		0AD5D2492A41FC1B000E826B /* FileCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileCache.swift; sourceTree = "<group>"; };
+		0AD5D2502A448880000E826B /* ToDoItemViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToDoItemViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +116,7 @@
 				0AD5D2152A41FB9F000E826B /* Assets.xcassets */,
 				0AD5D2172A41FB9F000E826B /* LaunchScreen.storyboard */,
 				0AD5D21A2A41FB9F000E826B /* Info.plist */,
+				0AD5D2502A448880000E826B /* ToDoItemViewController.swift */,
 			);
 			path = ToDo;
 			sourceTree = "<group>";
@@ -275,6 +279,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0AD5D24C2A41FC1B000E826B /* Extensions.swift in Sources */,
+				0AD5D2512A448880000E826B /* ToDoItemViewController.swift in Sources */,
 				0AD5D2112A41FB9D000E826B /* ViewController.swift in Sources */,
 				0AD5D20D2A41FB9D000E826B /* AppDelegate.swift in Sources */,
 				0AD5D24A2A41FC1B000E826B /* Objects.swift in Sources */,
@@ -299,6 +304,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0AD5D2302A41FB9F000E826B /* ToDoUITestsLaunchTests.swift in Sources */,
+				0AD5D2522A448880000E826B /* ToDoItemViewController.swift in Sources */,
 				0AD5D22E2A41FB9F000E826B /* ToDoUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
