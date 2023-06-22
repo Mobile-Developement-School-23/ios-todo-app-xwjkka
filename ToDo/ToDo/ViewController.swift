@@ -15,6 +15,7 @@ class ViewController: UIViewController {
         let addButton = UIButton()
         addButton.backgroundColor = #colorLiteral(red: 0, green: 0.4780646563, blue: 0.9985368848, alpha: 1)
         
+//        addButton.setImage(<#T##image: UIImage?##UIImage?#>, for: <#T##UIControl.State#>)
         addButton.setTitle("+", for: .normal)
         addButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 22)
         addButton.titleLabel?.textColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
@@ -57,9 +58,8 @@ class ViewController: UIViewController {
     
     
     private lazy var contentDoneView: UIView = {
-        let contentView = UIView()
-        
-        return contentView
+        let contentDoneView = UIView()
+        return contentDoneView
     }()
     
     private let doneLabel: UILabel = {
@@ -71,17 +71,14 @@ class ViewController: UIViewController {
         return headerLabel
     }()
     
-    private let showDoneButton: UIButton = {
+    private lazy var showDoneButton: UIButton = {
         let showDoneButton = UIButton()
         showDoneButton.setTitle("Показать", for: .normal)
         showDoneButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 15)
-        showDoneButton.titleLabel?.textColor = #colorLiteral(red: 0, green: 0.4780646563, blue: 0.9985368848, alpha: 1)
-        showDoneButton.contentMode = .right
-        return showDoneLabel
+        showDoneButton.setTitleColor(#colorLiteral(red: 0, green: 0.4780646563, blue: 0.9985368848, alpha: 1), for: .normal)
+        showDoneButton.titleLabel?.textAlignment = .center
+        return showDoneButton
     }()
-    
-    
-    
     
     private var contentSize: CGSize {
         CGSize(width: view.frame.width , height: view.frame.height)
@@ -100,11 +97,13 @@ class ViewController: UIViewController {
         scrollView.addSubview(contentView)
         contentView.addSubview(stackView)
         
-        view.addSubview(headerLabel)
+        scrollView.addSubview(headerLabel)
+//        view.addSubview(headerLabel)
         
-        view.addSubview(contentDoneView)
-        contentDoneView.addSubview(doneLabel)
+        scrollView.addSubview(contentDoneView)
+//        view.addSubview(contentDoneView)
         contentDoneView.addSubview(showDoneButton)
+        contentDoneView.addSubview(doneLabel)
         
         view.addSubview(addButton)
 
@@ -112,6 +111,7 @@ class ViewController: UIViewController {
         setupHeaderConstraints()
         setupViewsConstraints()
         setupAddButtonConstraints()
+        setupDoneViewConstraints()
     }
 
 
@@ -124,15 +124,23 @@ extension ViewController {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.translatesAutoresizingMaskIntoConstraints = false
 
+        contentView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            scrollView.rightAnchor.constraint(equalTo: view.rightAnchor),
+            scrollView.leftAnchor.constraint(equalTo: view.leftAnchor),
+            
+            contentView.topAnchor.constraint(equalTo: contentDoneView.bottomAnchor, constant: 20),
+//            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 200),
+            contentView.rightAnchor.constraint(equalTo: scrollView.rightAnchor, constant: 15),
+            contentView.leftAnchor.constraint(equalTo: scrollView.leftAnchor, constant: 15),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            
             stackView.topAnchor.constraint(equalTo: contentView.topAnchor),
             stackView.rightAnchor.constraint(equalTo: contentView.rightAnchor),
             stackView.leftAnchor.constraint(equalTo: contentView.leftAnchor),
-            
-            scrollView.topAnchor.constraint(equalTo: headerLabel.bottomAnchor, constant: 20),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            scrollView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: 15),
-            scrollView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 15)
+            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
         
         for view in stackView.arrangedSubviews {
@@ -148,8 +156,8 @@ extension ViewController {
         headerLabel.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            headerLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 100),
-            headerLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20)
+            headerLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 42),
+            headerLabel.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 20)
         ])
 
     }
@@ -166,7 +174,26 @@ extension ViewController {
     }
     
     private func setupDoneViewConstraints() {
-        
+        contentDoneView.translatesAutoresizingMaskIntoConstraints = false
+        doneLabel.translatesAutoresizingMaskIntoConstraints = false
+        showDoneButton.translatesAutoresizingMaskIntoConstraints = false
+    
+        NSLayoutConstraint.activate([
+            contentDoneView.topAnchor.constraint(equalTo: headerLabel.bottomAnchor, constant: 20),
+            contentDoneView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 20),
+            contentDoneView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -15),
+            
+            contentDoneView.heightAnchor.constraint(equalToConstant: 20),
+            
+            doneLabel.topAnchor.constraint(equalTo: contentDoneView.topAnchor),
+            showDoneButton.topAnchor.constraint(equalTo: contentDoneView.topAnchor),
+            
+            doneLabel.leftAnchor.constraint(equalTo: contentDoneView.leftAnchor),
+            doneLabel.bottomAnchor.constraint(equalTo: contentDoneView.bottomAnchor),
+            
+            showDoneButton.rightAnchor.constraint(equalTo: contentDoneView.rightAnchor),
+            showDoneButton.bottomAnchor.constraint(equalTo: contentDoneView.bottomAnchor)
+        ])
     }
     
     private func setupColors() {
