@@ -93,7 +93,7 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
         stackView.spacing = 16
 
 
-        stackView.backgroundColor = .red
+//        stackView.backgroundColor = .red
 
         return stackView
     }()
@@ -119,16 +119,18 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
 
         formTable.delegate = self
         formTable.dataSource = self
-
+        
         formTable.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         formTable.register(UITableViewCell.self, forCellReuseIdentifier: "cellWithSegmentedControl")
         formTable.register(UITableViewCell.self, forCellReuseIdentifier: "cellWithCheckbox")
         formTable.register(UITableViewCell.self, forCellReuseIdentifier: "cellWithCalendar")
 
         formTable.rowHeight = 56
-        
-//        self.formTable.estimatedRowHeight = 56
-        
+
+        formTable.sizeToFit()
+//        formTable.rowHeight = UITableView.automaticDimension
+//        formTable.estimatedRowHeight = 56
+
         formTable.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         formTable.layer.cornerRadius = 16
 
@@ -193,6 +195,10 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
     func textViewDidChange(_ textView: UITextView) {
         textView.sizeToFit()
     }
+    
+    func formTableDidChange(_ formTable: UITableView) {
+        formTable.sizeToFit()
+    }
 
     @objc func myRightSideBarButtonItemTapped(_ sender:UIBarButtonItem!)
     {
@@ -212,22 +218,15 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
         deadline = sender.isOn
         if deadline {
             formTable.insertRows(at: [IndexPath(row: 2, section: 0)], with: .fade)
-//            formTable.sizeToFit()
+            formTable.sizeToFit()
         } else {
             deadlineDate = nil
-//            formTable.delete(datePicker)
             formTable.deleteRows(at: [IndexPath(row: 2, section: 0)], with: .fade)
         }
     }
 
     @objc func deadlineDatePickerValueChanged(sender: UIDatePicker) {
         deadlineDate = sender.date
-        
-//        let dateLabel = UILabel()
-//        let dateFormatter = DateFormatter()
-////        dateFormatter.string(from: deadlineDate!)
-//        dateLabel.text = dateFormatter.string(from: deadlineDate!)
-//        formTable.cellForRow(at: IndexPath(row: 1, section: 0))?.addSubview(dateLabel)
     }
 
 }
@@ -245,8 +244,11 @@ extension ToDoItemViewController {
         formTable.translatesAutoresizingMaskIntoConstraints = false
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
 
-//        stackView.frame.size = scrollView.frame.size
+//        navBar.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
+//            navBar.widthAnchor.constraint(equalToConstant: view.frame.width),
+//            navBar.topAnchor.constraint(equalTo: view.topAnchor, constant: 20),
+            
             scrollView.topAnchor.constraint(equalTo: navBar.bottomAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             scrollView.rightAnchor.constraint(equalTo: view.rightAnchor),
@@ -268,9 +270,9 @@ extension ToDoItemViewController {
             formTable.topAnchor.constraint(equalTo: textView.bottomAnchor, constant: 16),
             formTable.leftAnchor.constraint(equalTo: scrollView.leftAnchor, constant: 16),
             formTable.rightAnchor.constraint(equalTo: scrollView.rightAnchor, constant: -16),
+//            formTable.bottomAnchor.constraint(equalTo: deleteButton.topAnchor, constant: 16),
             formTable.heightAnchor.constraint(greaterThanOrEqualToConstant: 113),
 
-//            deleteButton.topAnchor.constraint(equalTo: textView.bottomAnchor, constant: 16),
             deleteButton.topAnchor.constraint(equalTo: formTable.bottomAnchor, constant: 16),
             deleteButton.leftAnchor.constraint(equalTo: scrollView.leftAnchor, constant: 16),
             deleteButton.rightAnchor.constraint(equalTo: scrollView.rightAnchor, constant: -16),
