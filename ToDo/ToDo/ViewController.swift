@@ -54,6 +54,7 @@ class ViewController: UIViewController {
         stackView.axis = .vertical
         stackView.alignment = .center
 
+//        stackView.backgroundColor = .red
         return stackView
     }()
 
@@ -120,9 +121,9 @@ extension ViewController {
 
     private func setupViewsConstraints() {
         scrollView.showsHorizontalScrollIndicator = false
+        
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.translatesAutoresizingMaskIntoConstraints = false
-
         contentView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
