@@ -21,7 +21,12 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
             let cell = tableView.dequeueReusableCell(withIdentifier: "cellWithSegmentedControl", for: indexPath)
             cell.textLabel?.text = "Важность"
             let segmentedControl = UISegmentedControl(items: ["1", "2", "3"])
-            segmentedControl.frame = CGRect(x: 10, y: 10, width: 150, height: 36)
+//            let segmentedControl = UISegmentedControl(items: [UIImage(named: "unimportant"), UIImage(named: "regular"), UIImage(named: "important")])
+
+            segmentedControl.frame = CGRect(x: cell.frame.width - (cell.frame.width / 2.3), y: 10, width: cell.frame.width / 2.3, height: cell.frame.height - 20)
+//            segmentedControl.translatesAutoresizingMaskIntoConstraints = false
+//            NSLayoutConstraint.activate([segmentedControl.rightAnchor.constraint(equalTo: cell.rightAnchor)])
+//            segmentedControl.rightAnchor.constraint(equalTo: cell.rightAnchor)
             cell.contentView.addSubview(segmentedControl)
             return cell
         } else if indexPath.row == 1 {
