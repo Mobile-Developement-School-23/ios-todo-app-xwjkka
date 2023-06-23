@@ -3,17 +3,19 @@ import UIKit
 
 class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewDelegate, UITableViewDataSource {
     
+    
 //    var item: TodoItem
     var deadline = false
     var deadlineDate: Date? = nil
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if deadline {
-            return 3
-        } else {
-            return 2
-        }
+//        if deadline {
+//            return 3
+//        } else {
+//            return 2
+//        }
 
+        return 3
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -21,35 +23,63 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
             
             let cell = tableView.dequeueReusableCell(withIdentifier: "cellWithSegmentedControl", for: indexPath)
             cell.textLabel?.text = "Важность"
-
-            let segmentedControl = UISegmentedControl(items: [UIImage(named: "unimportant.png"), "нет", UIImage(named: "important")])
-
-            segmentedControl.frame = CGRect(x: cell.frame.width - (cell.frame.width / 2.7), y: 10, width: cell.frame.width / 2.3, height: cell.frame.height - 10)
+            
+            cell.textLabel?.translatesAutoresizingMaskIntoConstraints = false
+            cell.textLabel?.topAnchor.constraint(equalTo: cell.topAnchor, constant: 17).isActive = true
+            cell.textLabel?.leftAnchor.constraint(equalTo: cell.leftAnchor, constant: 16).isActive = true
+            
+            let segmentedControl = UISegmentedControl(items: [UIImage(named: "unimportant.png") ?? "u", "нет", UIImage(named: "important") ?? "i"])
+            segmentedControl.selectedSegmentIndex = 1
+            segmentedControl.frame = CGRect(x: cell.frame.width - (cell.frame.width / 2.3) - 20, y: 10, width: cell.frame.width / 2.3, height: cell.frame.height - 20)
             cell.contentView.addSubview(segmentedControl)
             return cell
         } else if indexPath.row == 1 {
-            
+
             let cell = tableView.dequeueReusableCell(withIdentifier: "cellWithCheckbox", for: indexPath)
             cell.textLabel?.text = "Сделать до"
+//            cell.textLabel?.topAnchor.constraint(equalTo: cell.topAnchor, constant: 8).isActive = true
+//            cell.textLabel?.leftAnchor.constraint(equalTo: cell.leftAnchor, constant: 16).isActive = true
+            
+            cell.textLabel?.translatesAutoresizingMaskIntoConstraints = false
+            cell.textLabel?.topAnchor.constraint(equalTo: cell.topAnchor, constant: 10).isActive = true
+//            cell.textLabel?.topAnchor.constraint(equalTo: cell.topAnchor, constant: 17).isActive = true
+            cell.textLabel?.leftAnchor.constraint(equalTo: cell.leftAnchor, constant: 16).isActive = true
+            
             let checkbox = UISwitch(frame: CGRect.zero)
             checkbox.isOn = deadline
             checkbox.addTarget(self, action: #selector(deadlineCheckboxValueChanged), for: .valueChanged)
             cell.accessoryView = checkbox
+            
+            deadlineDate = Date().addingTimeInterval(3600*24)
+
+            let button = UIButton(type: .system)
+            button.setTitle(deadlineDate?.ISO8601Format(), for: .normal)
+            button.addTarget(self, action: #selector(myRightSideBarButtonItemTapped), for: .touchUpInside)
+            cell.addSubview(button)
+
+            button.translatesAutoresizingMaskIntoConstraints = false
+            button.topAnchor.constraint(equalTo: cell.textLabel!.bottomAnchor, constant: 2).isActive = true
+            button.bottomAnchor.constraint(equalTo: cell.bottomAnchor).isActive = true
+            button.leftAnchor.constraint(equalTo: cell.textLabel!.leftAnchor).isActive = true
+            
+            button.tag = 1
+//            button.isHidden = false
+            button.isHidden = true
+
             return cell
+
         } else {
-            
             let cell = tableView.dequeueReusableCell(withIdentifier: "cellWithCalendar", for: indexPath)
-            let datePicker = UIDatePicker(frame: CGRect(x: 0, y: 0, width: cell.contentView.frame.width, height: cell.contentView.frame.height))
-            datePicker.datePickerMode = .date
-//            datePicker.datePickerStyle = .compact
-//            datePicker.preferredDatePickerStyle = .compact
-//            datePicker.subviews.forEach({ $0.subviews.forEach({ $0.removeFromSuperview() }) })
+            let calendarView = UIDatePicker()
+            calendarView.frame = CGRect(x: 16, y: 17, width: cell.frame.width, height: cell.frame.height)
+            calendarView.datePickerMode = .date
+            calendarView.date = Date().addingTimeInterval(3600*24)
+            calendarView.preferredDatePickerStyle = .inline
+            calendarView.minimumDate = Date()
             
-            if let deadlineDate = deadlineDate {
-                datePicker.date = deadlineDate
-            }
-            datePicker.addTarget(self, action: #selector(deadlineDatePickerValueChanged), for: .valueChanged)
-            cell.contentView.addSubview(datePicker)
+            calendarView.addTarget(self, action: #selector(deadlineDatePickerValueChanged), for: .valueChanged)
+            
+            cell.contentView.addSubview(calendarView)
             return cell
         }
     }
@@ -69,6 +99,8 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
         navItem.rightBarButtonItem = rightBarButton
         navItem.leftBarButtonItem = leftBarButton
 
+        navItem.rightBarButtonItem?.isEnabled = false
+        
         navBar.setItems([navItem], animated: false)
 
         return navBar
@@ -81,12 +113,8 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.backgroundColor = #colorLiteral(red: 0.969507277, green: 0.9645401835, blue: 0.9516965747, alpha: 1)
+//        scrollView.contentSize = CGSize(width: view.frame.width, height: view.frame.height - navBar.frame.height)
         scrollView.frame = view.bounds
-        scrollView.layer.masksToBounds = true
-//        scrollView.frame.size = CGSize(width: view.frame.width, height: view.frame.height - (50 + navBar.frame.height))
-//        scrollView.frame = view.bounds
-//        scrollView.frame = CGRect(x: 0, y: 50 + Int(navBar.frame.height), width: Int(view.frame.width), height: Int(view.frame.height) - (50 + Int(navBar.frame.height)))
-//        scrollView.heightAnchor.constraint(greaterThanOrEqualToConstant: <#T##CGFloat#>)
         return scrollView
     }()
 
@@ -115,13 +143,15 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
         textView.font = UIFont.systemFont(ofSize: 17)
         textView.textContainerInset = UIEdgeInsets(top: 17, left: 16, bottom: 17, right: 16)
         textView.delegate = self
+        
+//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(endEditing))
+//        self.view.addGestureRecognizer(tapGesture)
+
         return textView
     }()
 
     
     private lazy var formTable: UITableView  = {
-//        let formTable = UITableView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height), style: .plain)
-//        UITableView
         let formTable = UITableView()
 
         formTable.delegate = self
@@ -131,12 +161,6 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
         formTable.register(UITableViewCell.self, forCellReuseIdentifier: "cellWithSegmentedControl")
         formTable.register(UITableViewCell.self, forCellReuseIdentifier: "cellWithCheckbox")
         formTable.register(UITableViewCell.self, forCellReuseIdentifier: "cellWithCalendar")
-
-        formTable.rowHeight = 56
-
-//        formTable.sizeToFit()
-//        formTable.rowHeight = UITableView.automaticDimension
-//        formTable.estimatedRowHeight = 56
 
         formTable.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         formTable.layer.cornerRadius = 16
@@ -165,7 +189,6 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
         super.viewDidLoad()
 
         view.addSubview(scrollView)
-
         scrollView.addSubview(stackView)
 
         stackView.addSubview(textView)
@@ -193,8 +216,11 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
 
     func textViewDidEndEditing(_ textView: UITextView) {
         if textView.text.isEmpty {
+            navBar.items?[0].rightBarButtonItem?.isEnabled = false
             textView.text = "Что надо сделать?"
             textView.textColor = UIColor.lightGray
+        } else {
+            navBar.items?[0].rightBarButtonItem?.isEnabled = true
         }
         textView.resignFirstResponder()
     }
@@ -203,10 +229,16 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
         textView.sizeToFit()
     }
     
-    func formTableDidChange(_ formTable: UITableView) {
-        formTable.sizeToFit()
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        if indexPath == IndexPath(row: 2, section: 0) {
+            return formTable.frame.height - 113
+        } else {
+            return 56
+        }
     }
 
+
+    
     @objc func myRightSideBarButtonItemTapped(_ sender:UIBarButtonItem!)
     {
         print("myRightSideBarButtonItemTapped")
@@ -223,17 +255,24 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
 
     @objc func deadlineCheckboxValueChanged(sender: UISwitch) {
         deadline = sender.isOn
+        let cell = formTable.cellForRow(at: IndexPath(row: 1, section: 0))
+        let button = cell!.viewWithTag(1) as? UIButton
         if deadline {
-            formTable.insertRows(at: [IndexPath(row: 2, section: 0)], with: .fade)
-//            formTable.sizeToFit()
+//            cell!.textLabel?.topAnchor.constraint(equalTo: cell!.topAnchor, constant: 17).isActive = false
+//            cell!.textLabel?.topAnchor.constraint(equalTo: cell!.topAnchor, constant: 8).isActive = true
+            button!.isHidden = false
+            
         } else {
+            button!.isHidden = true
+//            cell!.textLabel?.topAnchor.constraint(equalTo: cell!.topAnchor, constant: 8).isActive = false
+//            cell!.textLabel?.topAnchor.constraint(equalTo: cell!.topAnchor, constant: 17).isActive = true
             deadlineDate = nil
-            formTable.deleteRows(at: [IndexPath(row: 2, section: 0)], with: .fade)
         }
     }
 
     @objc func deadlineDatePickerValueChanged(sender: UIDatePicker) {
         deadlineDate = sender.date
+//        formTable.cellForRow(at: IndexPath(row: 1, section: 0))?.removeConstraint()
     }
 
 }
@@ -242,6 +281,7 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
 
 extension ToDoItemViewController {
     private func setupViewsConstraints() {
+        
         scrollView.showsHorizontalScrollIndicator = false
 
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -271,11 +311,12 @@ extension ToDoItemViewController {
             textView.rightAnchor.constraint(equalTo: stackView.rightAnchor),
             textView.heightAnchor.constraint(greaterThanOrEqualToConstant: 100),
 
-            
+
             formTable.topAnchor.constraint(equalTo: textView.bottomAnchor, constant: 16),
             formTable.leftAnchor.constraint(equalTo: stackView.leftAnchor),
             formTable.rightAnchor.constraint(equalTo: stackView.rightAnchor),
-            formTable.heightAnchor.constraint(lessThanOrEqualToConstant: 169),
+            formTable.heightAnchor.constraint(lessThanOrEqualToConstant: 449),
+//            formTable.heightAnchor.constraint(greaterThanOrEqualToConstant: 113),
 
             deleteButton.topAnchor.constraint(equalTo: formTable.bottomAnchor, constant: 16),
             deleteButton.leftAnchor.constraint(equalTo: stackView.leftAnchor),
