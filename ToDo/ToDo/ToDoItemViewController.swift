@@ -21,10 +21,10 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
             
             let cell = tableView.dequeueReusableCell(withIdentifier: "cellWithSegmentedControl", for: indexPath)
             cell.textLabel?.text = "Важность"
-            let segmentedControl = UISegmentedControl(items: ["1", "2", "3"])
-//            let segmentedControl = UISegmentedControl(items: [UIImage(named: "unimportant"), UIImage(named: "regular"), UIImage(named: "important")])
 
-            segmentedControl.frame = CGRect(x: cell.frame.width - (cell.frame.width / 2.4), y: 10, width: cell.frame.width / 2.3, height: cell.frame.height - 10)
+            let segmentedControl = UISegmentedControl(items: [UIImage(named: "unimportant.png"), "нет", UIImage(named: "important")])
+
+            segmentedControl.frame = CGRect(x: cell.frame.width - (cell.frame.width / 2.7), y: 10, width: cell.frame.width / 2.3, height: cell.frame.height - 10)
             cell.contentView.addSubview(segmentedControl)
             return cell
         } else if indexPath.row == 1 {
@@ -42,8 +42,8 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
             let datePicker = UIDatePicker(frame: CGRect(x: 0, y: 0, width: cell.contentView.frame.width, height: cell.contentView.frame.height))
             datePicker.datePickerMode = .date
 //            datePicker.datePickerStyle = .compact
-            datePicker.preferredDatePickerStyle = .compact
-            datePicker.subviews.forEach({ $0.subviews.forEach({ $0.removeFromSuperview() }) })
+//            datePicker.preferredDatePickerStyle = .compact
+//            datePicker.subviews.forEach({ $0.subviews.forEach({ $0.removeFromSuperview() }) })
             
             if let deadlineDate = deadlineDate {
                 datePicker.date = deadlineDate
@@ -82,6 +82,11 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
         let scrollView = UIScrollView()
         scrollView.backgroundColor = #colorLiteral(red: 0.969507277, green: 0.9645401835, blue: 0.9516965747, alpha: 1)
         scrollView.frame = view.bounds
+        scrollView.layer.masksToBounds = true
+//        scrollView.frame.size = CGSize(width: view.frame.width, height: view.frame.height - (50 + navBar.frame.height))
+//        scrollView.frame = view.bounds
+//        scrollView.frame = CGRect(x: 0, y: 50 + Int(navBar.frame.height), width: Int(view.frame.width), height: Int(view.frame.height) - (50 + Int(navBar.frame.height)))
+//        scrollView.heightAnchor.constraint(greaterThanOrEqualToConstant: <#T##CGFloat#>)
         return scrollView
     }()
 
@@ -115,7 +120,9 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
 
     
     private lazy var formTable: UITableView  = {
-        let formTable = UITableView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height), style: .plain)
+//        let formTable = UITableView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height), style: .plain)
+//        UITableView
+        let formTable = UITableView()
 
         formTable.delegate = self
         formTable.dataSource = self
@@ -127,7 +134,7 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
 
         formTable.rowHeight = 56
 
-        formTable.sizeToFit()
+//        formTable.sizeToFit()
 //        formTable.rowHeight = UITableView.automaticDimension
 //        formTable.estimatedRowHeight = 56
 
@@ -218,7 +225,7 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
         deadline = sender.isOn
         if deadline {
             formTable.insertRows(at: [IndexPath(row: 2, section: 0)], with: .fade)
-            formTable.sizeToFit()
+//            formTable.sizeToFit()
         } else {
             deadlineDate = nil
             formTable.deleteRows(at: [IndexPath(row: 2, section: 0)], with: .fade)
@@ -244,15 +251,12 @@ extension ToDoItemViewController {
         formTable.translatesAutoresizingMaskIntoConstraints = false
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
 
-//        navBar.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-//            navBar.widthAnchor.constraint(equalToConstant: view.frame.width),
-//            navBar.topAnchor.constraint(equalTo: view.topAnchor, constant: 20),
-            
             scrollView.topAnchor.constraint(equalTo: navBar.bottomAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             scrollView.rightAnchor.constraint(equalTo: view.rightAnchor),
             scrollView.leftAnchor.constraint(equalTo: view.leftAnchor),
+//            scrollView.heightAnchor.constraint(greaterThanOrEqualToConstant: 353),
 
             stackView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 16),
             stackView.rightAnchor.constraint(equalTo: scrollView.rightAnchor, constant: -16),
@@ -262,20 +266,20 @@ extension ToDoItemViewController {
             stackView.widthAnchor.constraint(equalToConstant: scrollView.frame.width - 32),
             stackView.heightAnchor.constraint(equalToConstant: scrollView.frame.height),
 
-            textView.leftAnchor.constraint(equalTo: scrollView.leftAnchor, constant: 16),
-            textView.rightAnchor.constraint(equalTo: scrollView.rightAnchor, constant: -16),
+            textView.topAnchor.constraint(equalTo: stackView.topAnchor),
+            textView.leftAnchor.constraint(equalTo: stackView.leftAnchor),
+            textView.rightAnchor.constraint(equalTo: stackView.rightAnchor),
             textView.heightAnchor.constraint(greaterThanOrEqualToConstant: 100),
 
             
             formTable.topAnchor.constraint(equalTo: textView.bottomAnchor, constant: 16),
-            formTable.leftAnchor.constraint(equalTo: scrollView.leftAnchor, constant: 16),
-            formTable.rightAnchor.constraint(equalTo: scrollView.rightAnchor, constant: -16),
-//            formTable.bottomAnchor.constraint(equalTo: deleteButton.topAnchor, constant: 16),
-            formTable.heightAnchor.constraint(greaterThanOrEqualToConstant: 113),
+            formTable.leftAnchor.constraint(equalTo: stackView.leftAnchor),
+            formTable.rightAnchor.constraint(equalTo: stackView.rightAnchor),
+            formTable.heightAnchor.constraint(lessThanOrEqualToConstant: 169),
 
             deleteButton.topAnchor.constraint(equalTo: formTable.bottomAnchor, constant: 16),
-            deleteButton.leftAnchor.constraint(equalTo: scrollView.leftAnchor, constant: 16),
-            deleteButton.rightAnchor.constraint(equalTo: scrollView.rightAnchor, constant: -16),
+            deleteButton.leftAnchor.constraint(equalTo: stackView.leftAnchor),
+            deleteButton.rightAnchor.constraint(equalTo: stackView.rightAnchor),
             deleteButton.heightAnchor.constraint(equalToConstant: 56)
         ])
     }
