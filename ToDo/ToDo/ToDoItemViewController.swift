@@ -3,19 +3,17 @@ import UIKit
 
 class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewDelegate, UITableViewDataSource {
     
-    
 //    var item: TodoItem
     var deadline = false
-    var deadlineDate: Date? = nil
+    var notDefaultDate = false
+    var deadlineDate: Date? = Date().addingTimeInterval(3600*24)
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        if deadline {
-//            return 3
-//        } else {
-//            return 2
-//        }
-
-        return 3
+        if notDefaultDate {  // rjulf ytn ltlkfqyf nj;t ljk;ty pfrhsdfnmcz
+            return 3
+        } else {
+            return 2
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -37,33 +35,33 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
 
             let cell = tableView.dequeueReusableCell(withIdentifier: "cellWithCheckbox", for: indexPath)
             cell.textLabel?.text = "Сделать до"
-//            cell.textLabel?.topAnchor.constraint(equalTo: cell.topAnchor, constant: 8).isActive = true
-//            cell.textLabel?.leftAnchor.constraint(equalTo: cell.leftAnchor, constant: 16).isActive = true
             
             cell.textLabel?.translatesAutoresizingMaskIntoConstraints = false
-            cell.textLabel?.topAnchor.constraint(equalTo: cell.topAnchor, constant: 10).isActive = true
-//            cell.textLabel?.topAnchor.constraint(equalTo: cell.topAnchor, constant: 17).isActive = true
+            
+            let topConstraint = cell.textLabel?.topAnchor.constraint(equalTo: cell.topAnchor, constant: 17)
+            topConstraint!.identifier = "topConstraint"
+            topConstraint!.isActive = true
+            
             cell.textLabel?.leftAnchor.constraint(equalTo: cell.leftAnchor, constant: 16).isActive = true
             
             let checkbox = UISwitch(frame: CGRect.zero)
             checkbox.isOn = deadline
             checkbox.addTarget(self, action: #selector(deadlineCheckboxValueChanged), for: .valueChanged)
             cell.accessoryView = checkbox
-            
-            deadlineDate = Date().addingTimeInterval(3600*24)
 
             let button = UIButton(type: .system)
-            button.setTitle(deadlineDate?.ISO8601Format(), for: .normal)
-            button.addTarget(self, action: #selector(myRightSideBarButtonItemTapped), for: .touchUpInside)
+            button.setTitle(DateFormatter.DateFormatter.string(from: deadlineDate!), for: .normal)
+            button.addTarget(self, action: #selector(dateButtonItemTapped), for: .touchUpInside)
             cell.addSubview(button)
 
             button.translatesAutoresizingMaskIntoConstraints = false
             button.topAnchor.constraint(equalTo: cell.textLabel!.bottomAnchor, constant: 2).isActive = true
+
             button.bottomAnchor.constraint(equalTo: cell.bottomAnchor).isActive = true
             button.leftAnchor.constraint(equalTo: cell.textLabel!.leftAnchor).isActive = true
             
             button.tag = 1
-//            button.isHidden = false
+    
             button.isHidden = true
 
             return cell
@@ -85,7 +83,7 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
     }
     
     // MARK: - UINavigationBar
-
+    
     private lazy var navBar: UINavigationBar = {
         let navBar = UINavigationBar(frame: CGRect(x: 0, y: 50, width: view.frame.size.width, height: 44))
         navBar.backgroundColor = #colorLiteral(red: 0.969507277, green: 0.9645401835, blue: 0.9516965747, alpha: 1)
@@ -113,7 +111,6 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.backgroundColor = #colorLiteral(red: 0.969507277, green: 0.9645401835, blue: 0.9516965747, alpha: 1)
-//        scrollView.contentSize = CGSize(width: view.frame.width, height: view.frame.height - navBar.frame.height)
         scrollView.frame = view.bounds
         return scrollView
     }()
@@ -231,7 +228,7 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if indexPath == IndexPath(row: 2, section: 0) {
-            return formTable.frame.height - 113
+            return 313
         } else {
             return 56
         }
@@ -253,26 +250,43 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
         super.didReceiveMemoryWarning()
     }
 
+        
+    
+    @objc func dateButtonItemTapped(_ sender:UIButton)
+    {
+        if formTable.cellForRow(at: IndexPath(row: 2, section: 0)) != nil {
+            notDefaultDate = false
+            formTable.deleteRows(at: [IndexPath(row: 2, section: 0)], with: .fade)
+        } else {
+            notDefaultDate = true
+            formTable.insertRows(at: [IndexPath(row: 2, section: 0)], with: .fade)
+        }
+    }
+    
     @objc func deadlineCheckboxValueChanged(sender: UISwitch) {
         deadline = sender.isOn
         let cell = formTable.cellForRow(at: IndexPath(row: 1, section: 0))
         let button = cell!.viewWithTag(1) as? UIButton
         if deadline {
-//            cell!.textLabel?.topAnchor.constraint(equalTo: cell!.topAnchor, constant: 17).isActive = false
-//            cell!.textLabel?.topAnchor.constraint(equalTo: cell!.topAnchor, constant: 8).isActive = true
             button!.isHidden = false
-            
+            if let constraint = cell!.contentView.constraints.first(where: { $0.identifier == "topConstraint" }) {
+                constraint.constant = 8
+            }
         } else {
+//            button!.titleLabel?.text =
             button!.isHidden = true
-//            cell!.textLabel?.topAnchor.constraint(equalTo: cell!.topAnchor, constant: 8).isActive = false
-//            cell!.textLabel?.topAnchor.constraint(equalTo: cell!.topAnchor, constant: 17).isActive = true
+            if let constraint = cell!.contentView.constraints.first(where: { $0.identifier == "topConstraint" }) {
+                constraint.constant = 17
+            }
             deadlineDate = nil
         }
     }
 
     @objc func deadlineDatePickerValueChanged(sender: UIDatePicker) {
         deadlineDate = sender.date
-//        formTable.cellForRow(at: IndexPath(row: 1, section: 0))?.removeConstraint()
+        let cell = formTable.cellForRow(at: IndexPath(row: 1, section: 0))
+        let button = cell!.viewWithTag(1) as? UIButton
+        button?.setTitle(DateFormatter.DateFormatter.string(from: deadlineDate!), for: .normal)
     }
 
 }
@@ -324,4 +338,13 @@ extension ToDoItemViewController {
             deleteButton.heightAnchor.constraint(equalToConstant: 56)
         ])
     }
+}
+
+extension DateFormatter {
+    static let DateFormatter: DateFormatter = {
+        let dateFormatter = Foundation.DateFormatter()
+        dateFormatter.locale = Locale(identifier: "ru_RU")
+        dateFormatter.setLocalizedDateFormatFromTemplate("dd MMMM yyyy")
+        return dateFormatter
+    }()
 }
