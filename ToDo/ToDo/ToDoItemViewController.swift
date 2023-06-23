@@ -8,12 +8,10 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
     var notDefaultDate = false
     var deadlineDate: Date? = Date().addingTimeInterval(3600*24)
     
+//    var deadlineDate: Date?
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if notDefaultDate {  // rjulf ytn ltlkfqyf nj;t ljk;ty pfrhsdfnmcz
-            return 3
-        } else {
-            return 2
-        }
+        return 3
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -78,6 +76,11 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
             calendarView.addTarget(self, action: #selector(deadlineDatePickerValueChanged), for: .valueChanged)
             
             cell.contentView.addSubview(calendarView)
+            
+            cell.isHidden = true
+            
+            
+            
             return cell
         }
     }
@@ -121,9 +124,6 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
         stackView.axis = .vertical
         stackView.alignment = .center
         stackView.spacing = 16
-
-
-//        stackView.backgroundColor = .red
 
         return stackView
     }()
@@ -254,12 +254,14 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
     
     @objc func dateButtonItemTapped(_ sender:UIButton)
     {
-        if formTable.cellForRow(at: IndexPath(row: 2, section: 0)) != nil {
+        if notDefaultDate {
             notDefaultDate = false
-            formTable.deleteRows(at: [IndexPath(row: 2, section: 0)], with: .fade)
+            let cell = formTable.cellForRow(at: IndexPath(row: 2, section: 0))
+            cell?.isHidden = true
         } else {
             notDefaultDate = true
-            formTable.insertRows(at: [IndexPath(row: 2, section: 0)], with: .fade)
+            let cell = formTable.cellForRow(at: IndexPath(row: 2, section: 0))
+            cell?.isHidden = false
         }
     }
     
@@ -269,19 +271,13 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
         let button = cell!.viewWithTag(1) as? UIButton
         if deadline {
             button!.isHidden = false
-            if let constraint = cell!.contentView.constraints.first(where: { $0.identifier == "topConstraint" }) {
-                constraint.constant = 8
-            }
         } else {
-//            button!.titleLabel?.text =
+            notDefaultDate = false
             button!.isHidden = true
-            if let constraint = cell!.contentView.constraints.first(where: { $0.identifier == "topConstraint" }) {
-                constraint.constant = 17
-            }
             deadlineDate = nil
         }
     }
-
+    
     @objc func deadlineDatePickerValueChanged(sender: UIDatePicker) {
         deadlineDate = sender.date
         let cell = formTable.cellForRow(at: IndexPath(row: 1, section: 0))
@@ -330,13 +326,13 @@ extension ToDoItemViewController {
             formTable.leftAnchor.constraint(equalTo: stackView.leftAnchor),
             formTable.rightAnchor.constraint(equalTo: stackView.rightAnchor),
             formTable.heightAnchor.constraint(lessThanOrEqualToConstant: 449),
-//            formTable.heightAnchor.constraint(greaterThanOrEqualToConstant: 113),
 
             deleteButton.topAnchor.constraint(equalTo: formTable.bottomAnchor, constant: 16),
             deleteButton.leftAnchor.constraint(equalTo: stackView.leftAnchor),
             deleteButton.rightAnchor.constraint(equalTo: stackView.rightAnchor),
             deleteButton.heightAnchor.constraint(equalToConstant: 56)
         ])
+        
     }
 }
 
