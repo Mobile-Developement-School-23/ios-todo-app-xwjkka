@@ -18,18 +18,17 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.row == 0 {
+            
             let cell = tableView.dequeueReusableCell(withIdentifier: "cellWithSegmentedControl", for: indexPath)
             cell.textLabel?.text = "Важность"
             let segmentedControl = UISegmentedControl(items: ["1", "2", "3"])
 //            let segmentedControl = UISegmentedControl(items: [UIImage(named: "unimportant"), UIImage(named: "regular"), UIImage(named: "important")])
 
-            segmentedControl.frame = CGRect(x: cell.frame.width - (cell.frame.width / 2.3), y: 10, width: cell.frame.width / 2.3, height: cell.frame.height - 20)
-//            segmentedControl.translatesAutoresizingMaskIntoConstraints = false
-//            NSLayoutConstraint.activate([segmentedControl.rightAnchor.constraint(equalTo: cell.rightAnchor)])
-//            segmentedControl.rightAnchor.constraint(equalTo: cell.rightAnchor)
+            segmentedControl.frame = CGRect(x: cell.frame.width - (cell.frame.width / 2.4), y: 10, width: cell.frame.width / 2.3, height: cell.frame.height - 10)
             cell.contentView.addSubview(segmentedControl)
             return cell
         } else if indexPath.row == 1 {
+            
             let cell = tableView.dequeueReusableCell(withIdentifier: "cellWithCheckbox", for: indexPath)
             cell.textLabel?.text = "Сделать до"
             let checkbox = UISwitch(frame: CGRect.zero)
@@ -38,10 +37,19 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
             cell.accessoryView = checkbox
             return cell
         } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "cellWithSegmentedControl", for: indexPath)
-            let segmentedControl = UISegmentedControl(items: ["1", "2", "3"])
-            segmentedControl.frame = CGRect(x: 10, y: 10, width: cell.contentView.frame.width - 20, height: 56)
-            cell.contentView.addSubview(segmentedControl)
+            
+            let cell = tableView.dequeueReusableCell(withIdentifier: "cellWithCalendar", for: indexPath)
+            let datePicker = UIDatePicker(frame: CGRect(x: 0, y: 0, width: cell.contentView.frame.width, height: cell.contentView.frame.height))
+            datePicker.datePickerMode = .date
+//            datePicker.datePickerStyle = .compact
+            datePicker.preferredDatePickerStyle = .compact
+            datePicker.subviews.forEach({ $0.subviews.forEach({ $0.removeFromSuperview() }) })
+            
+            if let deadlineDate = deadlineDate {
+                datePicker.date = deadlineDate
+            }
+            datePicker.addTarget(self, action: #selector(deadlineDatePickerValueChanged), for: .valueChanged)
+            cell.contentView.addSubview(datePicker)
             return cell
         }
     }
@@ -85,7 +93,7 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
         stackView.spacing = 16
 
 
-//        stackView.backgroundColor = .red
+        stackView.backgroundColor = .red
 
         return stackView
     }()
@@ -94,6 +102,8 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
         let textView = UITextView()
         textView.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         textView.layer.cornerRadius = 16
+
+        textView.isScrollEnabled = false
 
         textView.text = "Что надо сделать?"
         textView.textColor = UIColor.lightGray
@@ -115,6 +125,9 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
         formTable.register(UITableViewCell.self, forCellReuseIdentifier: "cellWithCheckbox")
         formTable.register(UITableViewCell.self, forCellReuseIdentifier: "cellWithCalendar")
 
+        formTable.rowHeight = 56
+        
+//        self.formTable.estimatedRowHeight = 56
         
         formTable.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         formTable.layer.cornerRadius = 16
@@ -177,6 +190,10 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
         textView.resignFirstResponder()
     }
 
+    func textViewDidChange(_ textView: UITextView) {
+        textView.sizeToFit()
+    }
+
     @objc func myRightSideBarButtonItemTapped(_ sender:UIBarButtonItem!)
     {
         print("myRightSideBarButtonItemTapped")
@@ -195,12 +212,23 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
         deadline = sender.isOn
         if deadline {
             formTable.insertRows(at: [IndexPath(row: 2, section: 0)], with: .fade)
+//            formTable.sizeToFit()
         } else {
             deadlineDate = nil
+//            formTable.delete(datePicker)
             formTable.deleteRows(at: [IndexPath(row: 2, section: 0)], with: .fade)
         }
     }
 
+    @objc func deadlineDatePickerValueChanged(sender: UIDatePicker) {
+        deadlineDate = sender.date
+        
+//        let dateLabel = UILabel()
+//        let dateFormatter = DateFormatter()
+////        dateFormatter.string(from: deadlineDate!)
+//        dateLabel.text = dateFormatter.string(from: deadlineDate!)
+//        formTable.cellForRow(at: IndexPath(row: 1, section: 0))?.addSubview(dateLabel)
+    }
 
 }
 
@@ -217,6 +245,7 @@ extension ToDoItemViewController {
         formTable.translatesAutoresizingMaskIntoConstraints = false
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
 
+//        stackView.frame.size = scrollView.frame.size
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: navBar.bottomAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -233,12 +262,13 @@ extension ToDoItemViewController {
 
             textView.leftAnchor.constraint(equalTo: scrollView.leftAnchor, constant: 16),
             textView.rightAnchor.constraint(equalTo: scrollView.rightAnchor, constant: -16),
-            textView.heightAnchor.constraint(equalToConstant: 100),
+            textView.heightAnchor.constraint(greaterThanOrEqualToConstant: 100),
+
             
             formTable.topAnchor.constraint(equalTo: textView.bottomAnchor, constant: 16),
             formTable.leftAnchor.constraint(equalTo: scrollView.leftAnchor, constant: 16),
             formTable.rightAnchor.constraint(equalTo: scrollView.rightAnchor, constant: -16),
-            formTable.heightAnchor.constraint(equalToConstant: 113),
+            formTable.heightAnchor.constraint(greaterThanOrEqualToConstant: 113),
 
 //            deleteButton.topAnchor.constraint(equalTo: textView.bottomAnchor, constant: 16),
             deleteButton.topAnchor.constraint(equalTo: formTable.bottomAnchor, constant: 16),
