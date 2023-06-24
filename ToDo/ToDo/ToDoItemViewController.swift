@@ -2,13 +2,14 @@ import UIKit
 
 
 class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewDelegate, UITableViewDataSource {
-    
-//    var item: TodoItem
+
     var deadline = false
     var notDefaultDate = false
     var deadlineDate: Date? = Date().addingTimeInterval(3600*24)
     
-//    var deadlineDate: Date?
+    var selectedSegmentIndex = 1
+    
+    var cellHeight: CGFloat = 113
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 3
@@ -27,19 +28,20 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
             let segmentedControl = UISegmentedControl(items: [UIImage(named: "unimportant.png") ?? "u", "нет", UIImage(named: "important") ?? "i"])
             segmentedControl.selectedSegmentIndex = 1
             segmentedControl.frame = CGRect(x: cell.frame.width - (cell.frame.width / 2.3) - 20, y: 10, width: cell.frame.width / 2.3, height: cell.frame.height - 20)
+            
+            segmentedControl.addTarget(self, action: #selector(segmentedControlValueChanged(_:)), for: .valueChanged)
+
             cell.contentView.addSubview(segmentedControl)
             return cell
         } else if indexPath.row == 1 {
 
             let cell = tableView.dequeueReusableCell(withIdentifier: "cellWithCheckbox", for: indexPath)
+            
             cell.textLabel?.text = "Сделать до"
             
             cell.textLabel?.translatesAutoresizingMaskIntoConstraints = false
-            
-            let topConstraint = cell.textLabel?.topAnchor.constraint(equalTo: cell.topAnchor, constant: 17)
-            topConstraint!.identifier = "topConstraint"
-            topConstraint!.isActive = true
-            
+
+            cell.textLabel?.topAnchor.constraint(equalTo: cell.topAnchor, constant: 12).isActive = true
             cell.textLabel?.leftAnchor.constraint(equalTo: cell.leftAnchor, constant: 16).isActive = true
             
             let checkbox = UISwitch(frame: CGRect.zero)
@@ -78,9 +80,6 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
             cell.contentView.addSubview(calendarView)
             
             cell.isHidden = true
-            
-            
-            
             return cell
         }
     }
@@ -140,9 +139,11 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
         textView.font = UIFont.systemFont(ofSize: 17)
         textView.textContainerInset = UIEdgeInsets(top: 17, left: 16, bottom: 17, right: 16)
         textView.delegate = self
+
         
-//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(endEditing))
-//        self.view.addGestureRecognizer(tapGesture)
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(endEditing))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
 
         return textView
     }()
@@ -238,7 +239,18 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
     
     @objc func myRightSideBarButtonItemTapped(_ sender:UIBarButtonItem!)
     {
-        print("myRightSideBarButtonItemTapped")
+        if !deadline {
+            deadlineDate = nil
+        }
+        
+        var importanat = Importance.regular
+        if selectedSegmentIndex == 0 {
+            importanat = .unimportant
+        } else if selectedSegmentIndex == 2 {
+            importanat = .important
+        }
+        
+        let item = TodoItem(text: textView.text, importance: importanat, deadline: deadlineDate, created: Date())
     }
 
     @objc func myLeftSideBarButtonItemTapped(_ sender:UIBarButtonItem!)
@@ -250,7 +262,9 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
         super.didReceiveMemoryWarning()
     }
 
-        
+    @objc func segmentedControlValueChanged(_ sender: UISegmentedControl) {
+        selectedSegmentIndex = sender.selectedSegmentIndex
+    }
     
     @objc func dateButtonItemTapped(_ sender:UIButton)
     {
@@ -258,11 +272,17 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
             notDefaultDate = false
             let cell = formTable.cellForRow(at: IndexPath(row: 2, section: 0))
             cell?.isHidden = true
+            
+            cellHeight = 113
         } else {
             notDefaultDate = true
             let cell = formTable.cellForRow(at: IndexPath(row: 2, section: 0))
             cell?.isHidden = false
+            
+            cellHeight = 113 + 313
         }
+        formTable.beginUpdates()
+        formTable.endUpdates()
     }
     
     @objc func deadlineCheckboxValueChanged(sender: UISwitch) {
@@ -273,6 +293,7 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
             button!.isHidden = false
         } else {
             notDefaultDate = false
+            formTable.cellForRow(at: IndexPath(row: 2, section: 0))?.isHidden = true
             button!.isHidden = true
             deadlineDate = nil
         }
@@ -283,6 +304,10 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
         let cell = formTable.cellForRow(at: IndexPath(row: 1, section: 0))
         let button = cell!.viewWithTag(1) as? UIButton
         button?.setTitle(DateFormatter.DateFormatter.string(from: deadlineDate!), for: .normal)
+    }
+
+    @objc func endEditing() {
+        textView.resignFirstResponder()
     }
 
 }
@@ -306,7 +331,6 @@ extension ToDoItemViewController {
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             scrollView.rightAnchor.constraint(equalTo: view.rightAnchor),
             scrollView.leftAnchor.constraint(equalTo: view.leftAnchor),
-//            scrollView.heightAnchor.constraint(greaterThanOrEqualToConstant: 353),
 
             stackView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 16),
             stackView.rightAnchor.constraint(equalTo: scrollView.rightAnchor, constant: -16),
