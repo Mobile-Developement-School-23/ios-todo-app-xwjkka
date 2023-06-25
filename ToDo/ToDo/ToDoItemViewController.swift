@@ -9,6 +9,8 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate {
         super.viewDidLoad()
         
         view.addSubview(scrollView)
+        setUpNavBar()
+        
         scrollView.addSubview(stackView)
         
         stackView.addSubview(textView)
@@ -19,8 +21,6 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate {
         formStackView.addArrangedSubview(calendarView)
         
         stackView.addSubview(deleteButton)
-        
-        view.addSubview(navBar)
         
         textView.delegate = self
         
@@ -36,31 +36,20 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate {
     }
     
     
-    // MARK: - UINavigationBar
-    
-    private lazy var navBar: UINavigationBar = {
-        let navBar = UINavigationBar(frame: CGRect(x: 0, y: 50, width: view.frame.size.width, height: 44))
-        navBar.backgroundColor = #colorLiteral(red: 0.969507277, green: 0.9645401835, blue: 0.9516965747, alpha: 1)
-        
-        let navItem = UINavigationItem(title: "Дело")
-        
-        let rightBarButton = UIBarButtonItem(title: "Сохранить", style: UIBarButtonItem.Style.plain, target: self, action: #selector(self.saveBarButtonItemTapped(_:)))
-        
-        let leftBarButton = UIBarButtonItem(title: "Отменить", style: UIBarButtonItem.Style.plain, target: self, action: #selector(self.cancelBarButtonItemTapped(_:)))
-        
-        navItem.rightBarButtonItem = rightBarButton
-        navItem.leftBarButtonItem = leftBarButton
-        
-        navItem.rightBarButtonItem?.isEnabled = false
-        
-        navBar.setItems([navItem], animated: false)
-        
-        return navBar
-    }()
-    
-    
-    
     // MARK: - Content
+    
+    private func setUpNavBar() {
+        title = "Дело"
+
+        let rightNavigationButton = UIBarButtonItem(title: "Сохранить", style: UIBarButtonItem.Style.done ,  target: self, action: #selector(self.saveBarButtonItemTapped(_:)))
+     
+        let leftNavigationButton = UIBarButtonItem(title: "Отменить", style: UIBarButtonItem.Style.plain ,  target: self, action: #selector(self.cancelBarButtonItemTapped(_:)))
+
+        navigationItem.rightBarButtonItem = rightNavigationButton
+        navigationItem.leftBarButtonItem = leftNavigationButton
+        
+        rightNavigationButton.isEnabled = false
+    }
     
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -171,7 +160,6 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate {
         deadlineView.addSubview(dateButton)
     
         deadlineLabel.translatesAutoresizingMaskIntoConstraints = false
-//        deadlineLabel.topAnchor.constraint(equalTo: deadlineView.topAnchor).isActive = true
         deadlineLabel.topAnchor.constraint(equalTo: deadlineView.topAnchor, constant: 10).isActive = true
         deadlineLabel.leftAnchor.constraint(equalTo: deadlineView.leftAnchor, constant: 16).isActive = true
         deadlineLabel.heightAnchor.constraint(equalToConstant: 22).isActive = true
@@ -212,10 +200,7 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate {
         calendarView.addTarget(self, action: #selector(calendarViewValueChanged), for: .valueChanged)
         
         calendarView.isHidden = true
-        
-//        calendarView.translatesAutoresizingMaskIntoConstraints = false
-//        calendarView.leftAnchor.constraint(equalTo: formStackView.leftAnchor, constant: 16).isActive = true
-//        calendarView.rightAnchor.constraint(equalTo: formStackView.rightAnchor, constant: -16).isActive = true
+
         return calendarView
     }()
     
@@ -226,6 +211,8 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate {
         deleteButton.setTitle("Удалить", for: .normal)
         deleteButton.setTitleColor(.gray, for: .disabled)
         deleteButton.setTitleColor(.red, for: .normal)
+        
+        deleteButton.isEnabled = false
         
         return deleteButton
     }()
@@ -243,7 +230,11 @@ extension ToDoItemViewController {
     }
 
     @objc func cancelBarButtonItemTapped(_ sender:UIBarButtonItem!) {
-        print("cancel")
+        self.dismiss(animated: true, completion: {
+            if let navController = self.navigationController {
+                navController.popToRootViewController(animated: true)
+            }
+        })
     }
 
     override func didReceiveMemoryWarning() {
@@ -264,11 +255,18 @@ extension ToDoItemViewController {
 
     func textViewDidEndEditing(_ textView: UITextView) {
         if textView.text.isEmpty {
-            navBar.items?[0].rightBarButtonItem?.isEnabled = false
+            self.navigationItem.rightBarButtonItem?.isEnabled = false
             textView.text = "Что надо сделать?"
             textView.textColor = UIColor.lightGray
+            
+            deleteButton.isEnabled = false
+            deleteButton.setTitleColor(#colorLiteral(red: 0.8196074367, green: 0.8196083307, blue: 0.8411096334, alpha: 1), for: .normal)
+            
         } else {
-            navBar.items?[0].rightBarButtonItem?.isEnabled = true
+            self.navigationItem.rightBarButtonItem?.isEnabled = true
+            
+            deleteButton.isEnabled = true
+            deleteButton.setTitleColor(#colorLiteral(red: 1, green: 0.2332399487, blue: 0.1861645281, alpha: 1), for: .normal)
         }
         textView.resignFirstResponder()
     }
@@ -296,7 +294,6 @@ extension ToDoItemViewController {
     }
     
     @objc func openCalendar( ) {
-//        print("open")
         if calendarView.isHidden {
             UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseIn, animations:{
                 self.calendarView.isHidden = false
@@ -312,7 +309,6 @@ extension ToDoItemViewController {
     }
     
     @objc func calendarViewValueChanged (_ sender: UIDatePicker ) {
-//        deadlineDate = sender.date
         dateButton.setTitle(DateFormatter.DateFormatter.string(from: sender.date), for: .normal)
         openCalendar()
     }
@@ -326,7 +322,7 @@ extension ToDoItemViewController {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: navBar.bottomAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             scrollView.rightAnchor.constraint(equalTo: view.rightAnchor),
             scrollView.leftAnchor.constraint(equalTo: view.leftAnchor)
@@ -395,7 +391,6 @@ extension ToDoItemViewController {
         deadlineView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            
             deadlineView.topAnchor.constraint(equalTo: importanceView.bottomAnchor),
             deadlineView.leftAnchor.constraint(equalTo: formStackView.leftAnchor),
             deadlineView.rightAnchor.constraint(equalTo: formStackView.rightAnchor)
@@ -407,8 +402,6 @@ extension ToDoItemViewController {
         
         NSLayoutConstraint.activate([
             calendarView.topAnchor.constraint(equalTo: deadlineView.bottomAnchor),
-            calendarView.leftAnchor.constraint(equalTo: formStackView.leftAnchor, constant: 10),
-            calendarView.rightAnchor.constraint(equalTo: formStackView.rightAnchor, constant: -16),
             calendarView.bottomAnchor.constraint(equalTo: formStackView.bottomAnchor)
         ])
     }
