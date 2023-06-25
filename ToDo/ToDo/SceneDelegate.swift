@@ -15,7 +15,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.makeKeyAndVisible()
 //        window?.rootViewController = ViewController()
         window?.rootViewController = ToDoItemViewController()
-//        window?.rootViewController = ViewControllerTable()
+        
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

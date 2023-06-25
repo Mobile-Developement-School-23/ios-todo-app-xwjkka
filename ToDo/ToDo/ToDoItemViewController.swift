@@ -1,129 +1,83 @@
 import UIKit
 
 
-class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewDelegate, UITableViewDataSource {
-
-    var deadline = false
-    var notDefaultDate = false
-    var deadlineDate: Date? = Date().addingTimeInterval(3600*24)
+class ToDoItemViewController: UIViewController, UITextViewDelegate {
     
-    var selectedSegmentIndex = 1
+    // MARK: - viewDidLoad
     
-    var cellHeight: CGFloat = 113
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 3
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        view.addSubview(scrollView)
+        scrollView.addSubview(stackView)
+        
+        stackView.addSubview(textView)
+        
+        stackView.addSubview(formStackView)
+        formStackView.addArrangedSubview(importanceView)
+        formStackView.addArrangedSubview(deadlineView)
+        formStackView.addArrangedSubview(calendarView)
+        
+        stackView.addSubview(deleteButton)
+        
+        view.addSubview(navBar)
+        
+        textView.delegate = self
+        
+        setupScrollViewsConstraints()
+        setupStackViewsConstraints()
+        setupTextViewsConstraints()
+        setupDeleteButtonConstraints()
+        
+        setUpFormStackViewConstraints()
+        setUpImportanceViewConstaints()
+        setUpDeadlineViewConstaints()
+        setUpCalendarViewConstaints()
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if indexPath.row == 0 {
-            
-            let cell = tableView.dequeueReusableCell(withIdentifier: "cellWithSegmentedControl", for: indexPath)
-            cell.textLabel?.text = "Важность"
-            
-            cell.textLabel?.translatesAutoresizingMaskIntoConstraints = false
-            cell.textLabel?.topAnchor.constraint(equalTo: cell.topAnchor, constant: 17).isActive = true
-            cell.textLabel?.leftAnchor.constraint(equalTo: cell.leftAnchor, constant: 16).isActive = true
-            
-            let segmentedControl = UISegmentedControl(items: [UIImage(named: "unimportant.png") ?? "u", "нет", UIImage(named: "important") ?? "i"])
-            segmentedControl.selectedSegmentIndex = 1
-            segmentedControl.frame = CGRect(x: cell.frame.width - (cell.frame.width / 2.3) - 20, y: 10, width: cell.frame.width / 2.3, height: cell.frame.height - 20)
-            
-            segmentedControl.addTarget(self, action: #selector(segmentedControlValueChanged(_:)), for: .valueChanged)
-
-            cell.contentView.addSubview(segmentedControl)
-            return cell
-        } else if indexPath.row == 1 {
-
-            let cell = tableView.dequeueReusableCell(withIdentifier: "cellWithCheckbox", for: indexPath)
-            
-            cell.textLabel?.text = "Сделать до"
-            
-            cell.textLabel?.translatesAutoresizingMaskIntoConstraints = false
-
-            cell.textLabel?.topAnchor.constraint(equalTo: cell.topAnchor, constant: 12).isActive = true
-            cell.textLabel?.leftAnchor.constraint(equalTo: cell.leftAnchor, constant: 16).isActive = true
-            
-            let checkbox = UISwitch(frame: CGRect.zero)
-            checkbox.isOn = deadline
-            checkbox.addTarget(self, action: #selector(deadlineCheckboxValueChanged), for: .valueChanged)
-            cell.accessoryView = checkbox
-
-            let button = UIButton(type: .system)
-            button.setTitle(DateFormatter.DateFormatter.string(from: deadlineDate!), for: .normal)
-            button.addTarget(self, action: #selector(dateButtonItemTapped), for: .touchUpInside)
-            cell.addSubview(button)
-
-            button.translatesAutoresizingMaskIntoConstraints = false
-            button.topAnchor.constraint(equalTo: cell.textLabel!.bottomAnchor, constant: 2).isActive = true
-
-            button.bottomAnchor.constraint(equalTo: cell.bottomAnchor).isActive = true
-            button.leftAnchor.constraint(equalTo: cell.textLabel!.leftAnchor).isActive = true
-            
-            button.tag = 1
-    
-            button.isHidden = true
-
-            return cell
-
-        } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "cellWithCalendar", for: indexPath)
-            let calendarView = UIDatePicker()
-            calendarView.frame = CGRect(x: 16, y: 17, width: cell.frame.width, height: cell.frame.height)
-            calendarView.datePickerMode = .date
-            calendarView.date = Date().addingTimeInterval(3600*24)
-            calendarView.preferredDatePickerStyle = .inline
-            calendarView.minimumDate = Date()
-            
-            calendarView.addTarget(self, action: #selector(deadlineDatePickerValueChanged), for: .valueChanged)
-            
-            cell.contentView.addSubview(calendarView)
-            
-            cell.isHidden = true
-            return cell
-        }
-    }
     
     // MARK: - UINavigationBar
     
     private lazy var navBar: UINavigationBar = {
         let navBar = UINavigationBar(frame: CGRect(x: 0, y: 50, width: view.frame.size.width, height: 44))
         navBar.backgroundColor = #colorLiteral(red: 0.969507277, green: 0.9645401835, blue: 0.9516965747, alpha: 1)
-
+        
         let navItem = UINavigationItem(title: "Дело")
-
-        let rightBarButton = UIBarButtonItem(title: "Сохранить", style: UIBarButtonItem.Style.plain, target: self, action: #selector(self.myRightSideBarButtonItemTapped(_:)))
-
-        let leftBarButton = UIBarButtonItem(title: "Отменить", style: UIBarButtonItem.Style.plain, target: self, action: #selector(self.myLeftSideBarButtonItemTapped(_:)))
-
+        
+        let rightBarButton = UIBarButtonItem(title: "Сохранить", style: UIBarButtonItem.Style.plain, target: self, action: #selector(self.saveBarButtonItemTapped(_:)))
+        
+        let leftBarButton = UIBarButtonItem(title: "Отменить", style: UIBarButtonItem.Style.plain, target: self, action: #selector(self.cancelBarButtonItemTapped(_:)))
+        
         navItem.rightBarButtonItem = rightBarButton
         navItem.leftBarButtonItem = leftBarButton
-
+        
         navItem.rightBarButtonItem?.isEnabled = false
         
         navBar.setItems([navItem], animated: false)
-
+        
         return navBar
     }()
-
-
-
+    
+    
+    
     // MARK: - Content
     
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.backgroundColor = #colorLiteral(red: 0.969507277, green: 0.9645401835, blue: 0.9516965747, alpha: 1)
         scrollView.frame = view.bounds
+        
         return scrollView
     }()
-
+    
     private lazy var stackView: UIStackView = {
         let stackView = UIStackView()
         stackView.backgroundColor = #colorLiteral(red: 0.969507277, green: 0.9645401835, blue: 0.9516965747, alpha: 1)
         stackView.axis = .vertical
         stackView.alignment = .center
         stackView.spacing = 16
-
+        
+        
         return stackView
     }()
     
@@ -131,41 +85,138 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
         let textView = UITextView()
         textView.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         textView.layer.cornerRadius = 16
-
+        
         textView.isScrollEnabled = false
-
+        
         textView.text = "Что надо сделать?"
         textView.textColor = UIColor.lightGray
         textView.font = UIFont.systemFont(ofSize: 17)
         textView.textContainerInset = UIEdgeInsets(top: 17, left: 16, bottom: 17, right: 16)
         textView.delegate = self
-
+        
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(endEditing))
         tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
-
+        
         return textView
     }()
-
     
-    private lazy var formTable: UITableView  = {
-        let formTable = UITableView()
-
-        formTable.delegate = self
-        formTable.dataSource = self
+    private lazy var formStackView: UIStackView = {
+        let formStackView = UIStackView()
         
-        formTable.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-        formTable.register(UITableViewCell.self, forCellReuseIdentifier: "cellWithSegmentedControl")
-        formTable.register(UITableViewCell.self, forCellReuseIdentifier: "cellWithCheckbox")
-        formTable.register(UITableViewCell.self, forCellReuseIdentifier: "cellWithCalendar")
+        formStackView.axis = .vertical
+        formStackView.distribution = .fill
+        formStackView.alignment = .center
+        formStackView.layer.cornerRadius = 16
+        formStackView.spacing = 0
+        formStackView.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
+        
+        
+        return formStackView
+    }()
+    
+    private lazy var importanceView: UIStackView = {
+        let importanceView = UIStackView()
 
-        formTable.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
-        formTable.layer.cornerRadius = 16
+        importanceView.axis = .vertical
+        
+        let importanceLabel = UILabel()
+        importanceLabel.text = "Важность"
+        
+        let downArrow = UIImage(systemName: "arrow.down", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))!.withTintColor(#colorLiteral(red: 0.5520535111, green: 0.5570273995, blue: 0.5741342902, alpha: 1), renderingMode: .alwaysOriginal)
+        
+        let twoExclamation = UIImage(systemName: "exclamationmark.2", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))!.withTintColor(#colorLiteral(red: 1, green: 0.2332399487, blue: 0.1861645281, alpha: 1), renderingMode: .alwaysOriginal)
+        
+        let importanceControl = UISegmentedControl(items: [downArrow, "нет", twoExclamation])
+        importanceControl.selectedSegmentIndex = 1
+        importanceControl.setWidth(49, forSegmentAt: 0)
+        importanceControl.setWidth(49, forSegmentAt: 1)
+        importanceControl.setWidth(49, forSegmentAt: 2)
+        
+        
+        importanceView.addSubview(importanceLabel)
+        importanceView.addSubview(importanceControl)
+        
+        importanceLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        formTable.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        importanceLabel.topAnchor.constraint(equalTo: importanceView.topAnchor, constant: 17).isActive = true
+        importanceLabel.bottomAnchor.constraint(equalTo: importanceView.bottomAnchor, constant: -17).isActive = true
+        importanceLabel.leftAnchor.constraint(equalTo: importanceView.leftAnchor, constant: 16).isActive = true
 
-        return formTable
+        importanceControl.translatesAutoresizingMaskIntoConstraints = false
+        importanceControl.topAnchor.constraint(equalTo: importanceView.topAnchor, constant: 10).isActive = true
+        importanceControl.bottomAnchor.constraint(equalTo: importanceView.bottomAnchor, constant: -10).isActive = true
+        importanceControl.rightAnchor.constraint(equalTo: importanceView.rightAnchor, constant: -16).isActive = true
+        
+        return importanceView
+    }()
+    
+    private lazy var deadlineView: UIStackView = {
+    
+        let deadlineView = UIStackView()
+        deadlineView.axis = .horizontal
+        deadlineView.distribution = .fill
+        deadlineView.alignment = .leading
+        
+        let deadlineLabel = UILabel()
+        deadlineLabel.text = "Сделать до"
+        
+        let switchCase = UISwitch()
+        switchCase.isOn = false
+        switchCase.addTarget(self, action: #selector(switchToggled(_:)), for: .valueChanged)
+
+        deadlineView.addSubview(deadlineLabel)
+        deadlineView.addSubview(switchCase)
+        deadlineView.addSubview(dateButton)
+    
+        deadlineLabel.translatesAutoresizingMaskIntoConstraints = false
+//        deadlineLabel.topAnchor.constraint(equalTo: deadlineView.topAnchor).isActive = true
+        deadlineLabel.topAnchor.constraint(equalTo: deadlineView.topAnchor, constant: 10).isActive = true
+        deadlineLabel.leftAnchor.constraint(equalTo: deadlineView.leftAnchor, constant: 16).isActive = true
+        deadlineLabel.heightAnchor.constraint(equalToConstant: 22).isActive = true
+        
+        switchCase.translatesAutoresizingMaskIntoConstraints = false
+        switchCase.rightAnchor.constraint(equalTo: deadlineView.rightAnchor, constant: -16).isActive = true
+        switchCase.topAnchor.constraint(equalTo: deadlineView.topAnchor, constant: 15).isActive = true
+        switchCase.bottomAnchor.constraint(equalTo: deadlineView.bottomAnchor, constant: -15).isActive = true
+        
+        dateButton.translatesAutoresizingMaskIntoConstraints = false
+        dateButton.leftAnchor.constraint(equalTo: deadlineView.leftAnchor, constant: 16).isActive = true
+        dateButton.topAnchor.constraint(equalTo: deadlineLabel.bottomAnchor).isActive = true
+        dateButton.bottomAnchor.constraint(equalTo: deadlineView.bottomAnchor, constant: -10).isActive = true
+        
+        
+        return deadlineView
+    }()
+    
+    private lazy var dateButton: UIButton = {
+        let dateButton = UIButton(type: .system)
+        let deadlineDate = DateFormatter.DateFormatter.string(from: Date().addingTimeInterval(3600*24))
+        dateButton.setTitle(deadlineDate, for: .normal)
+        dateButton.setTitleColor(.systemBlue , for: .normal)
+        dateButton.addTarget(self, action: #selector(openCalendar), for: .touchUpInside)
+        
+        dateButton.isHidden = true
+        
+        return dateButton
+    }()
+    
+    private lazy var calendarView: UIDatePicker = {
+        let calendarView = UIDatePicker()
+        calendarView.datePickerMode = .date
+        calendarView.date = Date().addingTimeInterval(3600*24)
+        calendarView.preferredDatePickerStyle = .inline
+        calendarView.minimumDate = Date()
+
+        calendarView.addTarget(self, action: #selector(calendarViewValueChanged), for: .valueChanged)
+        
+        calendarView.isHidden = true
+        
+//        calendarView.translatesAutoresizingMaskIntoConstraints = false
+//        calendarView.leftAnchor.constraint(equalTo: formStackView.leftAnchor, constant: 16).isActive = true
+//        calendarView.rightAnchor.constraint(equalTo: formStackView.rightAnchor, constant: -16).isActive = true
+        return calendarView
     }()
     
     private lazy var deleteButton: UIButton  = {
@@ -175,34 +226,33 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
         deleteButton.setTitle("Удалить", for: .normal)
         deleteButton.setTitleColor(.gray, for: .disabled)
         deleteButton.setTitleColor(.red, for: .normal)
-
+        
         return deleteButton
     }()
 
+}
 
+// MARK: - Actions
 
-    // MARK: - viewDidLoad
+extension ToDoItemViewController {
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    // MARK: - for navBar
 
-        view.addSubview(scrollView)
-        scrollView.addSubview(stackView)
-
-        stackView.addSubview(textView)
-        stackView.addSubview(formTable)
-        stackView.addSubview(deleteButton)
-
-        view.addSubview(navBar)
-
-        textView.delegate = self
-
-        setupViewsConstraints()
+    @objc func saveBarButtonItemTapped(_ sender:UIBarButtonItem!) {
+        print("save")
     }
 
-    
-    // MARK: - Actions
-    
+    @objc func cancelBarButtonItemTapped(_ sender:UIBarButtonItem!) {
+        print("cancel")
+    }
+
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+    }
+
+
+    // MARK: - for text view
+
     func textViewDidBeginEditing(_ textView: UITextView) {
         if textView.textColor == UIColor.lightGray {
             textView.text = nil
@@ -226,139 +276,144 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate, UITableViewD
     func textViewDidChange(_ textView: UITextView) {
         textView.sizeToFit()
     }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if indexPath == IndexPath(row: 2, section: 0) {
-            return 313
-        } else {
-            return 56
-        }
-    }
-
-
-    
-    @objc func myRightSideBarButtonItemTapped(_ sender:UIBarButtonItem!)
-    {
-        if !deadline {
-            deadlineDate = nil
-        }
-        
-        var importanat = Importance.regular
-        if selectedSegmentIndex == 0 {
-            importanat = .unimportant
-        } else if selectedSegmentIndex == 2 {
-            importanat = .important
-        }
-        
-        let item = TodoItem(text: textView.text, importance: importanat, deadline: deadlineDate, created: Date())
-    }
-
-    @objc func myLeftSideBarButtonItemTapped(_ sender:UIBarButtonItem!)
-    {
-        print("myLeftSideBarButtonItemTapped")
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-    }
-
-    @objc func segmentedControlValueChanged(_ sender: UISegmentedControl) {
-        selectedSegmentIndex = sender.selectedSegmentIndex
-    }
-    
-    @objc func dateButtonItemTapped(_ sender:UIButton)
-    {
-        if notDefaultDate {
-            notDefaultDate = false
-            let cell = formTable.cellForRow(at: IndexPath(row: 2, section: 0))
-            cell?.isHidden = true
-            
-            cellHeight = 113
-        } else {
-            notDefaultDate = true
-            let cell = formTable.cellForRow(at: IndexPath(row: 2, section: 0))
-            cell?.isHidden = false
-            
-            cellHeight = 113 + 313
-        }
-        formTable.beginUpdates()
-        formTable.endUpdates()
-    }
-    
-    @objc func deadlineCheckboxValueChanged(sender: UISwitch) {
-        deadline = sender.isOn
-        let cell = formTable.cellForRow(at: IndexPath(row: 1, section: 0))
-        let button = cell!.viewWithTag(1) as? UIButton
-        if deadline {
-            button!.isHidden = false
-        } else {
-            notDefaultDate = false
-            formTable.cellForRow(at: IndexPath(row: 2, section: 0))?.isHidden = true
-            button!.isHidden = true
-            deadlineDate = nil
-        }
-    }
-    
-    @objc func deadlineDatePickerValueChanged(sender: UIDatePicker) {
-        deadlineDate = sender.date
-        let cell = formTable.cellForRow(at: IndexPath(row: 1, section: 0))
-        let button = cell!.viewWithTag(1) as? UIButton
-        button?.setTitle(DateFormatter.DateFormatter.string(from: deadlineDate!), for: .normal)
-    }
 
     @objc func endEditing() {
         textView.resignFirstResponder()
     }
-
+    
+    
+    // MARK: - for calendar
+    
+    @objc func switchToggled(_ sender: UISwitch! ) {
+        if sender.isOn {
+            dateButton.isHidden = false
+        } else {
+            dateButton.isHidden = true
+            if !calendarView.isHidden {
+                openCalendar()
+            }
+        }
+    }
+    
+    @objc func openCalendar( ) {
+//        print("open")
+        if calendarView.isHidden {
+            UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseIn, animations:{
+                self.calendarView.isHidden = false
+            })
+        } else {
+            UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut) {
+                self.calendarView.alpha = 0
+                self.calendarView.isHidden = true
+            } completion: { _ in
+                self.calendarView.alpha = 1
+            }
+        }
+    }
+    
+    @objc func calendarViewValueChanged (_ sender: UIDatePicker ) {
+//        deadlineDate = sender.date
+        dateButton.setTitle(DateFormatter.DateFormatter.string(from: sender.date), for: .normal)
+        openCalendar()
+    }
 }
 
     // MARK: - Constraints
 
 extension ToDoItemViewController {
-    private func setupViewsConstraints() {
-        
+    private func setupScrollViewsConstraints() {
         scrollView.showsHorizontalScrollIndicator = false
-
         scrollView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-
-        textView.translatesAutoresizingMaskIntoConstraints = false
-        formTable.translatesAutoresizingMaskIntoConstraints = false
-        deleteButton.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: navBar.bottomAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             scrollView.rightAnchor.constraint(equalTo: view.rightAnchor),
-            scrollView.leftAnchor.constraint(equalTo: view.leftAnchor),
+            scrollView.leftAnchor.constraint(equalTo: view.leftAnchor)
+        ])
+    }
 
+    private func setupStackViewsConstraints() {
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
             stackView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 16),
             stackView.rightAnchor.constraint(equalTo: scrollView.rightAnchor, constant: -16),
             stackView.leftAnchor.constraint(equalTo: scrollView.leftAnchor, constant: 16),
             stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
 
             stackView.widthAnchor.constraint(equalToConstant: scrollView.frame.width - 32),
-            stackView.heightAnchor.constraint(equalToConstant: scrollView.frame.height),
+            stackView.heightAnchor.constraint(equalToConstant: scrollView.frame.height)
+        ])
+    }
 
+    private func setupTextViewsConstraints() {
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
             textView.topAnchor.constraint(equalTo: stackView.topAnchor),
             textView.leftAnchor.constraint(equalTo: stackView.leftAnchor),
             textView.rightAnchor.constraint(equalTo: stackView.rightAnchor),
-            textView.heightAnchor.constraint(greaterThanOrEqualToConstant: 100),
-
-
-            formTable.topAnchor.constraint(equalTo: textView.bottomAnchor, constant: 16),
-            formTable.leftAnchor.constraint(equalTo: stackView.leftAnchor),
-            formTable.rightAnchor.constraint(equalTo: stackView.rightAnchor),
-            formTable.heightAnchor.constraint(lessThanOrEqualToConstant: 449),
-
-            deleteButton.topAnchor.constraint(equalTo: formTable.bottomAnchor, constant: 16),
+            textView.heightAnchor.constraint(greaterThanOrEqualToConstant: 100)
+        ])
+    }
+    
+    private func setupDeleteButtonConstraints() {
+        deleteButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            deleteButton.topAnchor.constraint(equalTo: formStackView.bottomAnchor, constant: 16),
             deleteButton.leftAnchor.constraint(equalTo: stackView.leftAnchor),
             deleteButton.rightAnchor.constraint(equalTo: stackView.rightAnchor),
             deleteButton.heightAnchor.constraint(equalToConstant: 56)
         ])
+    }
+    
+    private func setUpFormStackViewConstraints() {
+        formStackView.translatesAutoresizingMaskIntoConstraints = false
         
+        NSLayoutConstraint.activate([
+            
+            formStackView.topAnchor.constraint(equalTo: textView.bottomAnchor, constant: 16),
+            
+            formStackView.leftAnchor.constraint(equalTo: stackView.leftAnchor),
+            formStackView.rightAnchor.constraint(equalTo: stackView.rightAnchor),
+            
+//            formStackView.heightAnchor.constraint(equalToConstant: 200)
+        ])
+    }
+    
+    private func setUpImportanceViewConstaints() {
+        importanceView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            importanceView.heightAnchor.constraint(equalToConstant: 56),
+            importanceView.topAnchor.constraint(equalTo: formStackView.topAnchor),
+            importanceView.leftAnchor.constraint(equalTo: formStackView.leftAnchor),
+            importanceView.rightAnchor.constraint(equalTo: formStackView.rightAnchor),
+        ])
+    }
+    
+    private func setUpDeadlineViewConstaints() {
+        deadlineView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            
+            deadlineView.topAnchor.constraint(equalTo: importanceView.bottomAnchor),
+            deadlineView.leftAnchor.constraint(equalTo: formStackView.leftAnchor),
+            deadlineView.rightAnchor.constraint(equalTo: formStackView.rightAnchor)
+        ])
+    }
+    
+    private func setUpCalendarViewConstaints() {
+        calendarView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            calendarView.topAnchor.constraint(equalTo: deadlineView.bottomAnchor),
+            calendarView.leftAnchor.constraint(equalTo: formStackView.leftAnchor, constant: 10),
+            calendarView.rightAnchor.constraint(equalTo: formStackView.rightAnchor, constant: -16),
+            calendarView.bottomAnchor.constraint(equalTo: formStackView.bottomAnchor)
+        ])
     }
 }
+
 
 extension DateFormatter {
     static let DateFormatter: DateFormatter = {
