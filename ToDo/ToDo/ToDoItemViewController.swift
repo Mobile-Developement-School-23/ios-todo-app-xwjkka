@@ -2,6 +2,16 @@ import UIKit
 
 
 class ToDoItemViewController: UIViewController, UITextViewDelegate {
+    lazy var list = FileCache()
+    
+    convenience init(parent: UIViewController) {
+        self.init()
+        self.list = parent;
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - viewDidLoad
     
@@ -113,16 +123,6 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate {
         let importanceLabel = UILabel()
         importanceLabel.text = "Важность"
         
-        let downArrow = UIImage(systemName: "arrow.down", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))!.withTintColor(#colorLiteral(red: 0.5520535111, green: 0.5570273995, blue: 0.5741342902, alpha: 1), renderingMode: .alwaysOriginal)
-        
-        let twoExclamation = UIImage(systemName: "exclamationmark.2", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))!.withTintColor(#colorLiteral(red: 1, green: 0.2332399487, blue: 0.1861645281, alpha: 1), renderingMode: .alwaysOriginal)
-        
-        let importanceControl = UISegmentedControl(items: [downArrow, "нет", twoExclamation])
-        importanceControl.selectedSegmentIndex = 1
-        importanceControl.setWidth(49, forSegmentAt: 0)
-        importanceControl.setWidth(49, forSegmentAt: 1)
-        importanceControl.setWidth(49, forSegmentAt: 2)
-        
         
         importanceView.addSubview(importanceLabel)
         importanceView.addSubview(importanceControl)
@@ -141,6 +141,20 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate {
         return importanceView
     }()
     
+    private lazy var importanceControl: UISegmentedControl = {
+        let downArrow = UIImage(systemName: "arrow.down", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))!.withTintColor(#colorLiteral(red: 0.5520535111, green: 0.5570273995, blue: 0.5741342902, alpha: 1), renderingMode: .alwaysOriginal)
+        
+        let twoExclamation = UIImage(systemName: "exclamationmark.2", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))!.withTintColor(#colorLiteral(red: 1, green: 0.2332399487, blue: 0.1861645281, alpha: 1), renderingMode: .alwaysOriginal)
+        
+        let importanceControl = UISegmentedControl(items: [downArrow, "нет", twoExclamation])
+        importanceControl.selectedSegmentIndex = 1
+        importanceControl.setWidth(49, forSegmentAt: 0)
+        importanceControl.setWidth(49, forSegmentAt: 1)
+        importanceControl.setWidth(49, forSegmentAt: 2)
+        
+        return importanceControl
+    }()
+    
     private lazy var deadlineView: UIStackView = {
     
         let deadlineView = UIStackView()
@@ -150,10 +164,6 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate {
         
         let deadlineLabel = UILabel()
         deadlineLabel.text = "Сделать до"
-        
-        let switchCase = UISwitch()
-        switchCase.isOn = false
-        switchCase.addTarget(self, action: #selector(switchToggled(_:)), for: .valueChanged)
 
         deadlineView.addSubview(deadlineLabel)
         deadlineView.addSubview(switchCase)
@@ -176,6 +186,14 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate {
         
         
         return deadlineView
+    }()
+
+    private lazy var switchCase: UISwitch = {
+        let switchCase = UISwitch()
+        switchCase.isOn = false
+        switchCase.addTarget(self, action: #selector(switchToggled(_:)), for: .valueChanged)
+        
+        return switchCase
     }()
     
     private lazy var dateButton: UIButton = {
@@ -226,7 +244,25 @@ extension ToDoItemViewController {
     // MARK: - for navBar
 
     @objc func saveBarButtonItemTapped(_ sender:UIBarButtonItem!) {
-        print("save")
+//        print("save")
+        var deadlineDate = Date()
+        if switchCase.isOn {
+            deadlineDate = DateFormatter.DateFormatter.date(from: dateButton.title(for: .normal)!)!
+        }
+        
+        var importanat = Importance.regular
+        if importanceControl.selectedSegmentIndex == 0 {
+            importanat = .unimportant
+        } else if importanceControl.selectedSegmentIndex == 2 {
+            importanat = .important
+        }
+        
+//        if let item = TodoItem(text: textView.text, importance: importanat, deadline: deadlineDate, created: Date()) {
+//            list.addToDo(item)
+//        }
+        let item = TodoItem(text: textView.text, importance: importanat, deadline: deadlineDate, created: Date())
+//        ViewController.
+//        list.addToDo(item)
     }
 
     @objc func cancelBarButtonItemTapped(_ sender:UIBarButtonItem!) {

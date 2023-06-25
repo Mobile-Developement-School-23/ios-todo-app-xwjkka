@@ -8,6 +8,7 @@ class ViewController: UIViewController {
         view.backgroundColor = #colorLiteral(red: 0.969507277, green: 0.9645401835, blue: 0.9516965747, alpha: 1)
         
         view.addSubview(scrollView)
+//        setUpNavBar()
         
         scrollView.addSubview(contentView)
         
@@ -20,8 +21,8 @@ class ViewController: UIViewController {
         listToDoStack.addArrangedSubview(newButton)
         
         view.addSubview(addButton)
+
         
-//        view.addSubview(navBar)
 
         setupViewsConstraints()
         
@@ -29,14 +30,21 @@ class ViewController: UIViewController {
         setupAddButtonConstraints()
         setuplistToDoStackConstraints()
     }
+    
+    var list = FileCache()
 
-    private lazy var navBar: UINavigationBar = {
-        let navBar = UINavigationBar(frame: CGRect(x: 0, y: 50, width: view.frame.size.width, height: 44))
-        let navItem = UINavigationItem(title: "Мои дела")
-//        navBar.largeContentTitle = "Мои дела"
-        navBar.setItems([navItem], animated: false)
-        return navBar
-    }()
+//    private func setUpNavBar() {
+//        title = "Дело"
+//
+//        let rightNavigationButton = UIBarButtonItem(title: "Сохранить", style: UIBarButtonItem.Style.done ,  target: self, action: #selector(addButtonTapped))
+//
+//        let leftNavigationButton = UIBarButtonItem(title: "Отменить", style: UIBarButtonItem.Style.plain ,  target: self, action: #selector(addButtonTapped))
+//
+//        navigationItem.rightBarButtonItem = rightNavigationButton
+//        navigationItem.leftBarButtonItem = leftNavigationButton
+//
+//        rightNavigationButton.isEnabled = false
+//    }
 
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -88,13 +96,14 @@ class ViewController: UIViewController {
         return listToDoStack
     }()
     
-    private let newButton: UIButton = {
+    private lazy var newButton: UIButton = {
         let newButton = UIButton()
         newButton.setTitle("Новое", for: .normal)
+        newButton.setTitleColor(#colorLiteral(red: 0.6274510622, green: 0.6274510026, blue: 0.6274510026, alpha: 1), for: .normal)
         newButton.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
-        
-//        newButton.translatesAutoresizingMaskIntoConstraints = false
-//        newButton.
+        newButton.contentHorizontalAlignment = .left
+//        newButton.insetsLayoutMarginsFromSafeArea = true
+        newButton.contentEdgeInsets = UIEdgeInsets(top: 16,left: 28,bottom: 16,right: 28)
         return newButton
     }()
     
@@ -154,11 +163,15 @@ extension ViewController {
     private func setuplistToDoStackConstraints() {
         listToDoStack.translatesAutoresizingMaskIntoConstraints = false
         
+//        newButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             listToDoStack.topAnchor.constraint(equalTo: contentDoneView.bottomAnchor, constant: 12),
             listToDoStack.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 16),
             listToDoStack.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -16),
-//            listToDoStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+            
+//            newButton.leftAnchor.constraint(equalTo: listToDoStack.leftAnchor),
+//            newButton.rightAnchor.constraint(equalTo: listToDoStack.rightAnchor),
+//            newButton.bottomAnchor.constraint(equalTo: listToDoStack.bottomAnchor)
         ])
     }
     
