@@ -2,27 +2,29 @@
 import UIKit
 
 class ViewController: UIViewController {
+    var list = FileCache()
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        title = "Мои дела"
+//        super.navigationController?.navigationBar.tintColor = .red
+        
         view.backgroundColor = #colorLiteral(red: 0.969507277, green: 0.9645401835, blue: 0.9516965747, alpha: 1)
-        
+
         view.addSubview(scrollView)
-//        setUpNavBar()
-        
         scrollView.addSubview(contentView)
-        
+
         contentView.addSubview(contentDoneView)
-        
         contentDoneView.addArrangedSubview(doneLabel)
         contentDoneView.addArrangedSubview(showDoneButton)
 
         contentView.addSubview(listToDoStack)
         listToDoStack.addArrangedSubview(newButton)
-        
+
         view.addSubview(addButton)
 
-        
+
 
         setupViewsConstraints()
         
@@ -30,21 +32,7 @@ class ViewController: UIViewController {
         setupAddButtonConstraints()
         setuplistToDoStackConstraints()
     }
-    
-    var list = FileCache()
 
-//    private func setUpNavBar() {
-//        title = "Дело"
-//
-//        let rightNavigationButton = UIBarButtonItem(title: "Сохранить", style: UIBarButtonItem.Style.done ,  target: self, action: #selector(addButtonTapped))
-//
-//        let leftNavigationButton = UIBarButtonItem(title: "Отменить", style: UIBarButtonItem.Style.plain ,  target: self, action: #selector(addButtonTapped))
-//
-//        navigationItem.rightBarButtonItem = rightNavigationButton
-//        navigationItem.leftBarButtonItem = leftNavigationButton
-//
-//        rightNavigationButton.isEnabled = false
-//    }
 
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -52,24 +40,22 @@ class ViewController: UIViewController {
         scrollView.frame = view.bounds
         return scrollView
     }()
-    
+
     private lazy var contentView: UIView = {
         let contentView = UIView()
         contentView.frame = scrollView.frame
         return contentView
     }()
-    
+
     private lazy var contentDoneView: UIStackView = {
         let contentDoneView = UIStackView()
         contentDoneView.axis = .horizontal
-//        contentDoneView.alignment = .center
-//        contentDoneView.distribution = .fillEqually
         return contentDoneView
     }()
 
     private let doneLabel: UILabel = {
         let doneLabel = UILabel()
-        var counterDone = 5  // заменить н асчетчик
+        var counterDone = 5  // заменить на счетчик
 
         doneLabel.text = "Выполнено - " + String(counterDone)
         doneLabel.font = UIFont.systemFont(ofSize: 15, weight: .medium)
@@ -87,7 +73,7 @@ class ViewController: UIViewController {
         return showDoneButton
     }()
 
-    
+
     private lazy var listToDoStack: UIStackView = {
         let listToDoStack = UIStackView()
         listToDoStack.axis = .vertical
@@ -95,18 +81,17 @@ class ViewController: UIViewController {
         listToDoStack.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         return listToDoStack
     }()
-    
+
     private lazy var newButton: UIButton = {
         let newButton = UIButton()
         newButton.setTitle("Новое", for: .normal)
         newButton.setTitleColor(#colorLiteral(red: 0.6274510622, green: 0.6274510026, blue: 0.6274510026, alpha: 1), for: .normal)
         newButton.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
         newButton.contentHorizontalAlignment = .left
-//        newButton.insetsLayoutMarginsFromSafeArea = true
         newButton.contentEdgeInsets = UIEdgeInsets(top: 16,left: 28,bottom: 16,right: 28)
         return newButton
     }()
-    
+
     private let addButton: UIButton = {
         let addButton = UIButton()
         addButton.backgroundColor = #colorLiteral(red: 0, green: 0.4780646563, blue: 0.9985368848, alpha: 1)
@@ -134,21 +119,21 @@ extension ViewController {
 
 extension ViewController {
 
+    
     private func setupViewsConstraints() {
         scrollView.showsHorizontalScrollIndicator = false
-
     }
     
     private func setupDoneViewConstraints() {
         contentDoneView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            contentDoneView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 120),
+            contentDoneView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
             contentDoneView.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 26),
             contentDoneView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -26)
         ])
     }
-    
+
     private func setupAddButtonConstraints() {
         addButton.translatesAutoresizingMaskIntoConstraints = false
 
@@ -159,21 +144,19 @@ extension ViewController {
             addButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),
         ])
     }
-    
+
     private func setuplistToDoStackConstraints() {
         listToDoStack.translatesAutoresizingMaskIntoConstraints = false
-        
+
 //        newButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             listToDoStack.topAnchor.constraint(equalTo: contentDoneView.bottomAnchor, constant: 12),
             listToDoStack.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 16),
             listToDoStack.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -16),
-            
+
 //            newButton.leftAnchor.constraint(equalTo: listToDoStack.leftAnchor),
 //            newButton.rightAnchor.constraint(equalTo: listToDoStack.rightAnchor),
 //            newButton.bottomAnchor.constraint(equalTo: listToDoStack.bottomAnchor)
         ])
     }
-    
-    
 }

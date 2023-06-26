@@ -4,14 +4,14 @@ import UIKit
 class ToDoItemViewController: UIViewController, UITextViewDelegate {
     lazy var list = FileCache()
     
-    convenience init(parent: UIViewController) {
-        self.init()
-        self.list = parent;
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+//    convenience init(parent: UIViewController) {
+//        self.init()
+//        self.list = parent;
+//    }
+//    
+//    required init?(coder: NSCoder) {
+//        fatalError("init(coder:) has not been implemented")
+//    }
     
     // MARK: - viewDidLoad
     
@@ -27,8 +27,10 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate {
         
         stackView.addSubview(formStackView)
         formStackView.addArrangedSubview(importanceView)
+        formStackView.addArrangedSubview(separator)
         formStackView.addArrangedSubview(deadlineView)
         formStackView.addArrangedSubview(calendarView)
+//        calendarView.addSubview(separator)
         
         stackView.addSubview(deleteButton)
         
@@ -113,6 +115,12 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate {
         
         
         return formStackView
+    }()
+    
+    private lazy var separator: UIView = {
+        let separator = UIView()
+        separator.backgroundColor = #colorLiteral(red: 0.8196074367, green: 0.8196083307, blue: 0.8411096334, alpha: 1)
+        return separator
     }()
     
     private lazy var importanceView: UIStackView = {
@@ -209,6 +217,10 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate {
     }()
     
     private lazy var calendarView: UIDatePicker = {
+//        let separator = UIView()
+//        separator.backgroundColor = #colorLiteral(red: 0.8196074367, green: 0.8196083307, blue: 0.8411096334, alpha: 1)
+        
+
         let calendarView = UIDatePicker()
         calendarView.datePickerMode = .date
         calendarView.date = Date().addingTimeInterval(3600*24)
@@ -367,6 +379,7 @@ extension ToDoItemViewController {
 
     private func setupStackViewsConstraints() {
         stackView.translatesAutoresizingMaskIntoConstraints = false
+        separator.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             stackView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 16),
             stackView.rightAnchor.constraint(equalTo: scrollView.rightAnchor, constant: -16),
@@ -374,7 +387,11 @@ extension ToDoItemViewController {
             stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
 
             stackView.widthAnchor.constraint(equalToConstant: scrollView.frame.width - 32),
-            stackView.heightAnchor.constraint(equalToConstant: scrollView.frame.height)
+            stackView.heightAnchor.constraint(equalToConstant: scrollView.frame.height),
+            
+            separator.heightAnchor.constraint(equalToConstant: 1),
+            separator.leftAnchor.constraint(equalTo: formStackView.leftAnchor, constant: 16),
+            separator.rightAnchor.constraint(equalTo: formStackView.rightAnchor, constant: -16)
         ])
     }
 
@@ -427,7 +444,8 @@ extension ToDoItemViewController {
         deadlineView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            deadlineView.topAnchor.constraint(equalTo: importanceView.bottomAnchor),
+            deadlineView.topAnchor.constraint(equalTo: separator.bottomAnchor),
+//            deadlineView.topAnchor.constraint(equalTo: importanceView.bottomAnchor),
             deadlineView.leftAnchor.constraint(equalTo: formStackView.leftAnchor),
             deadlineView.rightAnchor.constraint(equalTo: formStackView.rightAnchor)
         ])
