@@ -4,7 +4,6 @@ import UIKit
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     var list = FileCache()
-//    var count: Int
     
 //    init(list: FileCache = FileCache()) {
 ////        self.count = 0
@@ -20,11 +19,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         list.addToDo(TodoItem(text: "haha", importance: Importance.regular, done: true, created: Date()))
         list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()))
-        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, deadline: Date(), created: Date()));
+//        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+//        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
+//        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
         
         title = "Мои дела"
         navigationController?.navigationBar.prefersLargeTitles = true
@@ -48,13 +46,22 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         setupAddButtonConstraints()
         setuplistToDoTableConstraints()
 
+        updateDoneLabel()
     }
 
 
+    func updateDoneLabel() {
+        let doneList = list.ListToDo.filter { $0.done }
+        let count = doneList.count
+        doneLabel.text = "Выполнено — \(count)"
+    }
+
+    
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.backgroundColor = #colorLiteral(red: 0.969507277, green: 0.9645401835, blue: 0.9516965747, alpha: 1)
         scrollView.frame = view.bounds
+        scrollView.isScrollEnabled = true
         return scrollView
     }()
 
@@ -70,30 +77,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         return contentDoneView
     }()
 
-
-//    func countDone() -> Int {
-//        var count = 0
-//        for item in list.ListToDo {
-//            if item.done {
-//                count += 1
-//            }
-//        }
-//        return count
-//    }
-//    func countDone() {
-//        count = 0
-//        for item in list.ListToDo {
-//            if item.done {
-//                count += 1
-//            }
-//        }
-//    }
-    
     private let doneLabel: UILabel = {
         let doneLabel = UILabel()
         
-//        countDone()
-        doneLabel.text = "Выполнено - " + String(0)
         doneLabel.font = UIFont.systemFont(ofSize: 15, weight: .medium)
         doneLabel.textColor = #colorLiteral(red: 0.6274510622, green: 0.6274510026, blue: 0.6274510026, alpha: 1)
 
@@ -116,17 +102,60 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 56
+        if let _ = list.ListToDo[indexPath.row].deadline {
+            return 66
+        } else {
+            return 56
+        }
+        
+//        var item = list.ListToDo[indexPath.row]
+//        var temp = TodoItem(id: item.id, text: item.text, importance: item.importance, deadline: item.deadline, done: true, created: item.created, changed: Date())
+//        list.addToDo(temp)
     }
+    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let doneAction = UIContextualAction(style: .normal, title: "done") { [self] (action, view, completion) in
+//            self.list.ListToDo[indexPath.row].done = true
+            let item = self.list.ListToDo[indexPath.row]
+            var temp = TodoItem(id: item.id, text: item.text, importance: item.importance, deadline: item.deadline, done: true, created: item.created, changed: Date())
+//            print(list.ListToDo)
+            self.list.addToDo(temp)
+//            print(list.ListToDo)
+//            listToDoTable.rectForRow(at: [indexPath])
+//            tableView.reloadData()
+            self.listToDoTable.reloadRows(at: [indexPath], with: .left)
+            self.updateDoneLabel()
+            completion(true)
+        }
+        doneAction.backgroundColor = #colorLiteral(red: 0.2066814005, green: 0.7795598507, blue: 0.349144876, alpha: 1)
+        return UISwipeActionsConfiguration(actions: [doneAction])
+    }
+
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let infoAction = UIContextualAction(style: .normal, title: "info") { (action, view, completion) in
+            completion(true)
+        }
+        let deleteAction = UIContextualAction(style: .destructive, title: "delete") { (action, view, completion) in
+            self.list.deleteToDo(self.list.ListToDo[indexPath.row].id)
+            tableView.reloadData()
+            self.updateDoneLabel()
+            completion(true)
+        }
+        infoAction.backgroundColor = .lightGray
+        return UISwipeActionsConfiguration(actions: [deleteAction, infoAction])
+    }
+
     
     func tableView(_ listToDoTable: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let item = list.ListToDo[indexPath.row]
         let cell = listToDoTable.dequeueReusableCell(withIdentifier: "cellId", for: indexPath)
         
+        cell.accessoryType = .disclosureIndicator
+
+        
         let textLabel = UILabel()
         if item.done {
             textLabel.text = item.text
-            textLabel.textColor = #colorLiteral(red: 0.8196074367, green: 0.8196083307, blue: 0.8411096334, alpha: 1)
+            textLabel.textColor = #colorLiteral(red: 0.6274510622, green: 0.6274510026, blue: 0.6274510026, alpha: 1)
             textLabel.font = UIFont.systemFont(ofSize: 17)
             let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: item.text)
                 attributeString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, attributeString.length))
@@ -136,24 +165,48 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             textLabel.text = item.text
         }
         
-        let arrow = UIImage(systemName: "chevron.right", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))!.withTintColor(#colorLiteral(red: 0.5520535111, green: 0.5570273995, blue: 0.5741342902, alpha: 1), renderingMode: .alwaysOriginal)
-        let arrowView = UIImageView(image: arrow)
-        arrowView.contentMode = .scaleAspectFit
+        var cellLabel: UIStackView = {
+            let cellLabel = UIStackView()
+            cellLabel.axis = .vertical
+            cellLabel.distribution = .fill
+            cellLabel.alignment = .leading
+            cellLabel.spacing = 2
+            cellLabel.translatesAutoresizingMaskIntoConstraints = false
+            return cellLabel
+        }()
         
-        cell.contentView.addSubview(textLabel)
-        cell.contentView.addSubview(arrowView)
+        cell.contentView.addSubview(cellLabel)
+        cellLabel.addArrangedSubview(textLabel)
         
-        textLabel.translatesAutoresizingMaskIntoConstraints = false
-        arrowView.translatesAutoresizingMaskIntoConstraints = false
+        if let _ = item.deadline {
+            
+            let dateLabel = UILabel()
+            dateLabel.textColor = #colorLiteral(red: 0.6274510622, green: 0.6274510026, blue: 0.6274510026, alpha: 1)
+            dateLabel.font = UIFont.systemFont(ofSize: 15)
+            let calendarImage = UIImage(systemName: "calendar", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))!.withTintColor(#colorLiteral(red: 0.6274510622, green: 0.6274510026, blue: 0.6274510026, alpha: 1), renderingMode: .alwaysOriginal)
+            let calendarAttachment = NSTextAttachment()
+
+            calendarAttachment.image = calendarImage
+            
+            let calendarAttributedString = NSAttributedString(attachment: calendarAttachment)
+
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "dd MMMM"
+            let dateString = dateFormatter.string(from: item.deadline!)
+            let dateAttributedString = NSAttributedString(string: " " + dateString)
+
+            let attributedString = NSMutableAttributedString()
+            attributedString.append(calendarAttributedString)
+            attributedString.append(dateAttributedString)
+
+            dateLabel.attributedText = attributedString
+            
+            cellLabel.addArrangedSubview(dateLabel)
+        }
         
         NSLayoutConstraint.activate([
-            textLabel.leftAnchor.constraint(equalTo: cell.leftAnchor, constant: 26),
-            textLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
-            
-            arrowView.rightAnchor.constraint(equalTo: cell.contentView.rightAnchor, constant: -26),
-            arrowView.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
-            arrowView.widthAnchor.constraint(equalToConstant: 10),
-            arrowView.heightAnchor.constraint(equalToConstant: 15)
+            cellLabel.leftAnchor.constraint(equalTo: cell.leftAnchor, constant: 26),
+            cellLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor)
         ])
 
         return cell
@@ -177,7 +230,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         listToDoTable.tableFooterView = newButton
         listToDoTable.tableFooterView?.frame = CGRect(x: 0, y: 0, width: listToDoTable.frame.width, height: 56)
         
-//        listToDoTable.isScrollEnabled = false
+        listToDoTable.isScrollEnabled = false
         listToDoTable.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         listToDoTable.layer.cornerRadius = 16
         return listToDoTable
@@ -188,11 +241,20 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let addButton = UIButton()
 
         addButton.setImage(UIImage(systemName: "plus.circle.fill")!.withTintColor(#colorLiteral(red: 0, green: 0.4780646563, blue: 0.9985368848, alpha: 1), renderingMode: .alwaysOriginal), for: .normal)
+        addButton.imageView?.contentMode = .scaleAspectFit
 
         addButton.layer.shadowColor = #colorLiteral(red: 0, green: 0.4780646563, blue: 0.9985368848, alpha: 1)
         addButton.layer.shadowOffset = CGSize(width: 0.0, height: 8.0)
         addButton.layer.shadowOpacity = 0.3
         addButton.layer.shadowRadius = 20
+
+        addButton.imageView?.translatesAutoresizingMaskIntoConstraints = false
+        addButton.addConstraints([
+                NSLayoutConstraint(item: addButton.imageView!, attribute: .leading, relatedBy: .equal, toItem: addButton, attribute: .leading, multiplier: 1, constant: 0),
+                NSLayoutConstraint(item: addButton.imageView!, attribute: .trailing, relatedBy: .equal, toItem: addButton, attribute: .trailing, multiplier: 1, constant: 0),
+                NSLayoutConstraint(item: addButton.imageView!, attribute: .top, relatedBy: .equal, toItem: addButton, attribute: .top, multiplier: 1, constant: 0),
+                NSLayoutConstraint(item: addButton.imageView!, attribute: .bottom, relatedBy: .equal, toItem: addButton, attribute: .bottom, multiplier: 1, constant: 0)
+            ])
 
 
         addButton.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
@@ -249,11 +311,14 @@ extension ViewController {
         bottomConstraint.priority = UILayoutPriority(rawValue: 999)
         bottomConstraint.isActive = true
         
+        let doneList = list.ListToDo.filter { $0.done }
+        let count = doneList.count
+        
         NSLayoutConstraint.activate([
             listToDoTable.topAnchor.constraint(equalTo: contentDoneView.bottomAnchor, constant: 12),
             listToDoTable.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 16),
             listToDoTable.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -16),
-            listToDoTable.heightAnchor.constraint(equalToConstant: CGFloat((list.ListToDo.count + 1) * 56))
+            listToDoTable.heightAnchor.constraint(equalToConstant: CGFloat(count * 66 + (list.ListToDo.count - count + 1) * 56))
         ])
     }
     
