@@ -8,6 +8,8 @@ class ViewController: UIViewController {
         super.viewDidLoad()
 
         title = "Мои дела"
+        navigationController?.navigationBar.prefersLargeTitles = true
+//        largeTitle = "Мои дела"
 //        super.navigationController?.navigationBar.tintColor = .red
         
         view.backgroundColor = #colorLiteral(red: 0.969507277, green: 0.9645401835, blue: 0.9516965747, alpha: 1)
