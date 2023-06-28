@@ -17,12 +17,24 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, done: true, created: Date()))
-        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()))
+        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, done: true, created: Date()));
+        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
         list.addToDo(TodoItem(text: "haha", importance: Importance.regular, deadline: Date(), created: Date()));
-//        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-//        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
-//        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, done: true, created: Date()));
+        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, deadline: Date(), created: Date()));
+        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, done: true, created: Date()));
+        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, deadline: Date(), created: Date()));
+        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
         
         title = "Мои дела"
         navigationController?.navigationBar.prefersLargeTitles = true
@@ -32,11 +44,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
 
-        contentView.addSubview(contentDoneView)
+        contentView.addArrangedSubview(contentDoneView)
         contentDoneView.addArrangedSubview(doneLabel)
         contentDoneView.addArrangedSubview(showDoneButton)
 
-        contentView.addSubview(listToDoTable)
+        contentView.addArrangedSubview(listToDoTable)
 
         view.addSubview(addButton)
 
@@ -60,19 +72,24 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.backgroundColor = #colorLiteral(red: 0.969507277, green: 0.9645401835, blue: 0.9516965747, alpha: 1)
-        scrollView.frame = view.bounds
+        scrollView.contentSize = CGSize(width: view.frame.width, height: view.frame.height)
+        print(scrollView.frame.width)
         scrollView.isScrollEnabled = true
         return scrollView
     }()
 
-    private lazy var contentView: UIView = {
-        let contentView = UIView()
-        contentView.frame = scrollView.frame
+    private lazy var contentView: UIStackView = {
+        let contentView = UIStackView()
+//        contentView.frame = scrollView.frame
+        contentView.alignment = .fill
+        print(contentView.frame.width)
+        contentView.axis = .vertical
         return contentView
     }()
 
     private lazy var contentDoneView: UIStackView = {
         let contentDoneView = UIStackView()
+        contentDoneView.distribution = .equalCentering
         contentDoneView.axis = .horizontal
         return contentDoneView
     }()
@@ -278,22 +295,29 @@ extension ViewController {
     
     private func setupViewsConstraints() {
         scrollView.showsHorizontalScrollIndicator = false
-        
-//        NSLayoutConstraint.activate([
-//            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-//            scrollView.leftAnchor.constraint(equalTo: view.leftAnchor),
-//            scrollView.rightAnchor.constraint(equalTo: view.rightAnchor),
-//            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-//        ])
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.leftAnchor.constraint(equalTo: view.leftAnchor),
+            scrollView.rightAnchor.constraint(equalTo: view.rightAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leftAnchor.constraint(equalTo: scrollView.leftAnchor, constant: 16),
+            contentView.rightAnchor.constraint(equalTo: scrollView.rightAnchor, constant: -16),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -78),
+            contentView.widthAnchor.constraint(equalToConstant: view.frame.size.width - 32)
+        ])
     }
     
     private func setupDoneViewConstraints() {
         contentDoneView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            contentDoneView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
-            contentDoneView.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 26),
-            contentDoneView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -26)
+            contentDoneView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            contentDoneView.heightAnchor.constraint(equalToConstant: 44),
         ])
     }
 
@@ -319,10 +343,8 @@ extension ViewController {
         let count = doneList.count
         
         NSLayoutConstraint.activate([
-            listToDoTable.topAnchor.constraint(equalTo: contentDoneView.bottomAnchor, constant: 12),
-            listToDoTable.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 16),
-            listToDoTable.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -16),
-            listToDoTable.heightAnchor.constraint(equalToConstant: CGFloat(count * 66 + (list.ListToDo.count - count + 1) * 56))
+            listToDoTable.heightAnchor.constraint(equalToConstant: CGFloat(count * 66 + (list.ListToDo.count - count + 1) * 56)),
+            listToDoTable.widthAnchor.constraint(equalTo: contentView.widthAnchor)
         ])
     }
     
