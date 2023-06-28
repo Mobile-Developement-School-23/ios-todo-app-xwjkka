@@ -2,16 +2,16 @@ import UIKit
 
 
 class ToDoItemViewController: UIViewController, UITextViewDelegate {
-    lazy var list = FileCache()
+    var list: FileCache
+        
+    init(list: FileCache) {
+        self.list = list
+        super.init(nibName: nil, bundle: nil)
+    }
     
-//    convenience init(parent: UIViewController) {
-//        self.init()
-//        self.list = parent;
-//    }
-//    
-//    required init?(coder: NSCoder) {
-//        fatalError("init(coder:) has not been implemented")
-//    }
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - viewDidLoad
     
@@ -217,9 +217,6 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate {
     }()
     
     private lazy var calendarView: UIDatePicker = {
-//        let separator = UIView()
-//        separator.backgroundColor = #colorLiteral(red: 0.8196074367, green: 0.8196083307, blue: 0.8411096334, alpha: 1)
-        
 
         let calendarView = UIDatePicker()
         calendarView.datePickerMode = .date
@@ -256,7 +253,6 @@ extension ToDoItemViewController {
     // MARK: - for navBar
 
     @objc func saveBarButtonItemTapped(_ sender:UIBarButtonItem!) {
-//        print("save")
         var deadlineDate = Date()
         if switchCase.isOn {
             deadlineDate = DateFormatter.DateFormatter.date(from: dateButton.title(for: .normal)!)!
@@ -269,12 +265,19 @@ extension ToDoItemViewController {
             importanat = .important
         }
         
-//        if let item = TodoItem(text: textView.text, importance: importanat, deadline: deadlineDate, created: Date()) {
-//            list.addToDo(item)
-//        }
         let item = TodoItem(text: textView.text, importance: importanat, deadline: deadlineDate, created: Date())
-//        ViewController.
-//        list.addToDo(item)
+
+        list.addToDo(item)
+//        UIView.transition(with: self.list.ListToDo,
+//                          duration: 0.35,
+//                          options: .transitionCrossDissolve,
+//                          animations: { self.list.ListToDo.reloadData() })
+        
+        self.dismiss(animated: true, completion: {
+            if let navController = self.navigationController {
+                navController.popToRootViewController(animated: true)
+            }
+        })
     }
 
     @objc func cancelBarButtonItemTapped(_ sender:UIBarButtonItem!) {
@@ -358,7 +361,6 @@ extension ToDoItemViewController {
     
     @objc func calendarViewValueChanged (_ sender: UIDatePicker ) {
         dateButton.setTitle(DateFormatter.DateFormatter.string(from: sender.date), for: .normal)
-        openCalendar()
     }
 }
 

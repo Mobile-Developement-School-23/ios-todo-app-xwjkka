@@ -9,7 +9,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 ////        self.count = 0
 //        self.list = list
 //    }
-    
+//
 //    required init?(coder: NSCoder) {
 //        fatalError("init(coder:) has not been implemented")
 //    }
@@ -107,43 +107,38 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         } else {
             return 56
         }
-        
-//        var item = list.ListToDo[indexPath.row]
-//        var temp = TodoItem(id: item.id, text: item.text, importance: item.importance, deadline: item.deadline, done: true, created: item.created, changed: Date())
-//        list.addToDo(temp)
+
     }
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let doneAction = UIContextualAction(style: .normal, title: "done") { [self] (action, view, completion) in
-//            self.list.ListToDo[indexPath.row].done = true
+        let doneAction = UIContextualAction(style: .normal, title: nil) { [self] (action, view, completion) in
             let item = self.list.ListToDo[indexPath.row]
-            var temp = TodoItem(id: item.id, text: item.text, importance: item.importance, deadline: item.deadline, done: true, created: item.created, changed: Date())
-//            print(list.ListToDo)
+            var temp = TodoItem(id: item.id, text: item.text, importance: item.importance, deadline: item.deadline, done: !(item.done), created: item.created, changed: Date())
             self.list.addToDo(temp)
-//            print(list.ListToDo)
-//            listToDoTable.rectForRow(at: [indexPath])
-//            tableView.reloadData()
-            self.listToDoTable.reloadRows(at: [indexPath], with: .left)
             self.updateDoneLabel()
             completion(true)
         }
+        doneAction.image = UIImage(systemName:  "checkmark.circle.fill")
         doneAction.backgroundColor = #colorLiteral(red: 0.2066814005, green: 0.7795598507, blue: 0.349144876, alpha: 1)
         return UISwipeActionsConfiguration(actions: [doneAction])
     }
 
-    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath)
+    -> UISwipeActionsConfiguration? {
         let infoAction = UIContextualAction(style: .normal, title: "info") { (action, view, completion) in
             completion(true)
         }
-        let deleteAction = UIContextualAction(style: .destructive, title: "delete") { (action, view, completion) in
+        infoAction.image = UIImage(systemName: "info.circle")
+            
+        let deleteAction = UIContextualAction(style: .destructive, title: nil) { (_, _, completionHandler) in
             self.list.deleteToDo(self.list.ListToDo[indexPath.row].id)
-            tableView.reloadData()
-            self.updateDoneLabel()
-            completion(true)
+            tableView.deleteRows(at: [indexPath], with: .right)
         }
-        infoAction.backgroundColor = .lightGray
-        return UISwipeActionsConfiguration(actions: [deleteAction, infoAction])
+        
+        deleteAction.image = UIImage(systemName: "trash")
+        let configuration = UISwipeActionsConfiguration(actions: [deleteAction, infoAction])
+        return configuration
     }
-
     
     func tableView(_ listToDoTable: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let item = list.ListToDo[indexPath.row]
@@ -229,6 +224,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         listToDoTable.register(UITableViewCell.self, forCellReuseIdentifier: "cellId")
         listToDoTable.tableFooterView = newButton
         listToDoTable.tableFooterView?.frame = CGRect(x: 0, y: 0, width: listToDoTable.frame.width, height: 56)
+//        listToDoTable.autoresizingMask = true
+//        listToDoTable.autoresizingMask = .flexibleHeight
         
         listToDoTable.isScrollEnabled = false
         listToDoTable.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
@@ -264,8 +261,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
 extension ViewController {
     @objc func addButtonTapped() {
-        let toDoTaskViewController = UINavigationController(rootViewController: ToDoItemViewController())
-        present(toDoTaskViewController, animated: true, completion: nil)
+        let toDoItemViewController = ToDoItemViewController(list: list)
+        let navigationController = UINavigationController(rootViewController: toDoItemViewController)
+        present(navigationController, animated: true, completion: nil)
+//        listToDoTable.reloadData()
+//        UIView.transition(with: self.listToDoTable,
+//                          duration: 0.35,
+//                          options: .transitionCrossDissolve,
+//                          animations: { self.listToDoTable.reloadData() })
+//        print(list.ListToDo)
     }
 }
 
