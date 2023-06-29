@@ -4,6 +4,7 @@ import UIKit
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     var list = FileCache()
+    var listToDoTableHeightConstraint: NSLayoutConstraint?
     
 //    init(list: FileCache = FileCache()) {
 ////        self.count = 0
@@ -20,21 +21,21 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         list.addToDo(TodoItem(text: "haha", importance: Importance.regular, done: true, created: Date()));
         list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
         list.addToDo(TodoItem(text: "haha", importance: Importance.regular, deadline: Date(), created: Date()));
-        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, done: true, created: Date()));
-        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, deadline: Date(), created: Date()));
-        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, done: true, created: Date()));
-        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, deadline: Date(), created: Date()));
-        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+//        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+//        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
+//        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+//        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, done: true, created: Date()));
+//        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+//        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, deadline: Date(), created: Date()));
+//        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+//        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
+//        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+//        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, done: true, created: Date()));
+//        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+//        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, deadline: Date(), created: Date()));
+//        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+//        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
+//        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
         
         title = "Мои дела"
         navigationController?.navigationBar.prefersLargeTitles = true
@@ -73,16 +74,13 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let scrollView = UIScrollView()
         scrollView.backgroundColor = #colorLiteral(red: 0.969507277, green: 0.9645401835, blue: 0.9516965747, alpha: 1)
         scrollView.contentSize = CGSize(width: view.frame.width, height: view.frame.height)
-        print(scrollView.frame.width)
         scrollView.isScrollEnabled = true
         return scrollView
     }()
 
     private lazy var contentView: UIStackView = {
         let contentView = UIStackView()
-//        contentView.frame = scrollView.frame
         contentView.alignment = .fill
-        print(contentView.frame.width)
         contentView.axis = .vertical
         return contentView
     }()
@@ -129,8 +127,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let doneAction = UIContextualAction(style: .normal, title: nil) { [self] (action, view, completion) in
             let item = self.list.ListToDo[indexPath.row]
-            var temp = TodoItem(id: item.id, text: item.text, importance: item.importance, deadline: item.deadline, done: !(item.done), created: item.created, changed: Date())
+            let temp = TodoItem(id: item.id, text: item.text, importance: item.importance, deadline: item.deadline, done: !(item.done), created: item.created, changed: Date())
             self.list.addToDo(temp)
+            
+            if let cell = tableView.cellForRow(at: indexPath) as? UITableViewCell {
+//                cell.cellL.text = "Новый текст"
+//                cell.cellLabel.textLabel
+//                cell.contentView.cellL
+            }
+
             self.updateDoneLabel()
             completion(true)
         }
@@ -150,6 +155,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let deleteAction = UIContextualAction(style: .destructive, title: nil) { (_, _, completionHandler) in
             self.list.deleteToDo(self.list.ListToDo[indexPath.row].id)
             tableView.deleteRows(at: [indexPath], with: .right)
+            UIView.transition(with: self.listToDoTable,
+                              duration: 0.35,
+                              options: .curveEaseInOut,
+                              animations: { self.updateTableHeight() })
         }
         
         deleteAction.image = UIImage(systemName: "trash")
@@ -177,7 +186,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             textLabel.text = item.text
         }
         
-        var cellLabel: UIStackView = {
+        let cellLabel: UIStackView = {
             let cellLabel = UIStackView()
             cellLabel.axis = .vertical
             cellLabel.distribution = .fill
@@ -339,13 +348,26 @@ extension ViewController {
         bottomConstraint.priority = UILayoutPriority(rawValue: 999)
         bottomConstraint.isActive = true
         
-        let doneList = list.ListToDo.filter { $0.done }
+        let doneList = list.ListToDo.filter { $0.deadline != nil }
         let count = doneList.count
         
+        let heightConstraint = listToDoTable.heightAnchor.constraint(equalToConstant: CGFloat(count * 66 + (list.ListToDo.count - count + 1) * 56))
+        heightConstraint.isActive = true
+        listToDoTableHeightConstraint = heightConstraint
+
+        
         NSLayoutConstraint.activate([
-            listToDoTable.heightAnchor.constraint(equalToConstant: CGFloat(count * 66 + (list.ListToDo.count - count + 1) * 56)),
             listToDoTable.widthAnchor.constraint(equalTo: contentView.widthAnchor)
         ])
     }
     
+    private func updateTableHeight() {
+        let doneList = list.ListToDo.filter { $0.deadline != nil }
+        let count = doneList.count
+        let newHeight = CGFloat(count * 66 + (list.ListToDo.count - count + 1) * 56)
+    
+        listToDoTableHeightConstraint?.constant = newHeight
+        
+        view.layoutIfNeeded()
+    }
 }
