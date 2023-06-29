@@ -5,15 +5,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     var list = FileCache()
     var listToDoTableHeightConstraint: NSLayoutConstraint?
-    
-//    init(list: FileCache = FileCache()) {
-////        self.count = 0
-//        self.list = list
-//    }
-//
-//    required init?(coder: NSCoder) {
-//        fatalError("init(coder:) has not been implemented")
-//    }
+    var hideDone = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -107,6 +99,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         showDoneButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 15)
         showDoneButton.setTitleColor(#colorLiteral(red: 0, green: 0.4780646563, blue: 0.9985368848, alpha: 1), for: .normal)
         showDoneButton.titleLabel?.textAlignment = .center
+        
+        showDoneButton.addTarget(self, action: #selector(showDoneButtonTapped), for: .touchUpInside)
+        
         return showDoneButton
     }()
 
@@ -119,22 +114,18 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if let _ = list.ListToDo[indexPath.row].deadline {
             return 66
+        } else if hideDone && list.ListToDo[indexPath.row].done {
+            return 0
         } else {
             return 56
         }
-
     }
+    
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let doneAction = UIContextualAction(style: .normal, title: nil) { [self] (action, view, completion) in
             let item = self.list.ListToDo[indexPath.row]
             let temp = TodoItem(id: item.id, text: item.text, importance: item.importance, deadline: item.deadline, done: !(item.done), created: item.created, changed: Date())
             self.list.addToDo(temp)
-            
-            if let cell = tableView.cellForRow(at: indexPath) as? UITableViewCell {
-//                cell.cellL.text = "Новый текст"
-//                cell.cellLabel.textLabel
-//                cell.contentView.cellL
-            }
 
             self.updateDoneLabel()
             completion(true)
@@ -171,6 +162,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let cell = listToDoTable.dequeueReusableCell(withIdentifier: "cellId", for: indexPath)
         
         cell.accessoryType = .disclosureIndicator
+
+        if hideDone && item.done {
+            cell.isHidden = true
+        } else {
+            cell.isHidden = false
+        }
 
         
         let textLabel = UILabel()
@@ -290,12 +287,22 @@ extension ViewController {
         let toDoItemViewController = ToDoItemViewController(list: list)
         let navigationController = UINavigationController(rootViewController: toDoItemViewController)
         present(navigationController, animated: true, completion: nil)
-//        listToDoTable.reloadData()
-//        UIView.transition(with: self.listToDoTable,
-//                          duration: 0.35,
-//                          options: .transitionCrossDissolve,
-//                          animations: { self.listToDoTable.reloadData() })
-//        print(list.ListToDo)
+    }
+    
+    private func updateTableHeight() {
+        let doneList = list.ListToDo.filter { $0.deadline != nil }
+        let count = doneList.count
+        let height = CGFloat(count * 66 + (list.ListToDo.count - count + 1) * 56)
+    
+        listToDoTableHeightConstraint?.constant = height
+        
+        view.layoutIfNeeded()
+    }
+    
+    @objc func showDoneButtonTapped() {
+        hideDone = !hideDone
+        listToDoTable.reloadData()
+        updateTableHeight()
     }
 }
 
@@ -359,15 +366,5 @@ extension ViewController {
         NSLayoutConstraint.activate([
             listToDoTable.widthAnchor.constraint(equalTo: contentView.widthAnchor)
         ])
-    }
-    
-    private func updateTableHeight() {
-        let doneList = list.ListToDo.filter { $0.deadline != nil }
-        let count = doneList.count
-        let newHeight = CGFloat(count * 66 + (list.ListToDo.count - count + 1) * 56)
-    
-        listToDoTableHeightConstraint?.constant = newHeight
-        
-        view.layoutIfNeeded()
     }
 }

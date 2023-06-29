@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0ABF76632A4D90FD009BD133 /* TableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABF76622A4D90FD009BD133 /* TableCell.swift */; };
-		0ABF76642A4D90FD009BD133 /* TableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABF76622A4D90FD009BD133 /* TableCell.swift */; };
 		0AD5D20D2A41FB9D000E826B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD5D20C2A41FB9D000E826B /* AppDelegate.swift */; };
 		0AD5D20F2A41FB9D000E826B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD5D20E2A41FB9D000E826B /* SceneDelegate.swift */; };
 		0AD5D2112A41FB9D000E826B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD5D2102A41FB9D000E826B /* ViewController.swift */; };
@@ -44,7 +42,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0ABF76622A4D90FD009BD133 /* TableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableCell.swift; sourceTree = "<group>"; };
 		0AD5D2092A41FB9D000E826B /* ToDo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToDo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0AD5D20C2A41FB9D000E826B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0AD5D20E2A41FB9D000E826B /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -88,14 +85,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0ABF76612A4D90E0009BD133 /* SubViews */ = {
-			isa = PBXGroup;
-			children = (
-				0ABF76622A4D90FD009BD133 /* TableCell.swift */,
-			);
-			path = SubViews;
-			sourceTree = "<group>";
-		};
 		0AD5D2002A41FB9D000E826B = {
 			isa = PBXGroup;
 			children = (
@@ -168,7 +157,6 @@
 		0AD5D25D2A4AD834000E826B /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
-				0ABF76612A4D90E0009BD133 /* SubViews */,
 				0AD5D2102A41FB9D000E826B /* ViewController.swift */,
 				0AD5D2502A448880000E826B /* ToDoItemViewController.swift */,
 			);
@@ -310,7 +298,6 @@
 			files = (
 				0AD5D24C2A41FC1B000E826B /* Extensions.swift in Sources */,
 				0AD5D2512A448880000E826B /* ToDoItemViewController.swift in Sources */,
-				0ABF76632A4D90FD009BD133 /* TableCell.swift in Sources */,
 				0AD5D2112A41FB9D000E826B /* ViewController.swift in Sources */,
 				0AD5D20D2A41FB9D000E826B /* AppDelegate.swift in Sources */,
 				0AD5D24A2A41FC1B000E826B /* Objects.swift in Sources */,
@@ -334,7 +321,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0ABF76642A4D90FD009BD133 /* TableCell.swift in Sources */,
 				0AD5D2302A41FB9F000E826B /* ToDoUITestsLaunchTests.swift in Sources */,
 				0AD5D22E2A41FB9F000E826B /* ToDoUITests.swift in Sources */,
 			);
