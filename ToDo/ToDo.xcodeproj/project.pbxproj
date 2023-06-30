@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0ABF76672A4DF493009BD133 /* CocoaLumberjack in Frameworks */ = {isa = PBXBuildFile; productRef = 0ABF76662A4DF493009BD133 /* CocoaLumberjack */; };
+		0ABF76692A4F2CF6009BD133 /* TableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABF76682A4F2CF6009BD133 /* TableCell.swift */; };
 		0AD5D20D2A41FB9D000E826B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD5D20C2A41FB9D000E826B /* AppDelegate.swift */; };
 		0AD5D20F2A41FB9D000E826B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD5D20E2A41FB9D000E826B /* SceneDelegate.swift */; };
 		0AD5D2112A41FB9D000E826B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD5D2102A41FB9D000E826B /* ViewController.swift */; };
@@ -43,6 +44,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0ABF76682A4F2CF6009BD133 /* TableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableCell.swift; sourceTree = "<group>"; };
 		0AD5D2092A41FB9D000E826B /* ToDo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToDo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0AD5D20C2A41FB9D000E826B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0AD5D20E2A41FB9D000E826B /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -182,6 +184,7 @@
 			children = (
 				0AD5D2102A41FB9D000E826B /* ViewController.swift */,
 				0AD5D2502A448880000E826B /* ToDoItemViewController.swift */,
+				0ABF76682A4F2CF6009BD133 /* TableCell.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -406,6 +409,7 @@
 			files = (
 				0AD5D24C2A41FC1B000E826B /* Extensions.swift in Sources */,
 				0AD5D2512A448880000E826B /* ToDoItemViewController.swift in Sources */,
+				0ABF76692A4F2CF6009BD133 /* TableCell.swift in Sources */,
 				0AD5D2112A41FB9D000E826B /* ViewController.swift in Sources */,
 				0AD5D20D2A41FB9D000E826B /* AppDelegate.swift in Sources */,
 				0AD5D24A2A41FC1B000E826B /* Objects.swift in Sources */,

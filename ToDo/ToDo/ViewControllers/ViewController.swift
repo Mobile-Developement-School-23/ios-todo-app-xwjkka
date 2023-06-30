@@ -165,81 +165,19 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(_ listToDoTable: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let item = list.ListToDo[indexPath.row]
-        let cell = listToDoTable.dequeueReusableCell(withIdentifier: "cellId", for: indexPath)
-        
-        cell.accessoryType = .disclosureIndicator
 
+        guard let cell = listToDoTable.dequeueReusableCell(withIdentifier: ListToDoTableCell.identifier, for: indexPath) as? ListToDoTableCell else {
+            return UITableViewCell()
+        }
+        let item = list.ListToDo[indexPath.row]
         if hideDone && item.done {
             cell.isHidden = true
         } else {
             cell.isHidden = false
         }
 
+        cell.configure(with: item)
         
-        let textLabel = UILabel()
-        if item.done {
-            textLabel.text = item.text
-            textLabel.textColor = #colorLiteral(red: 0.6274510622, green: 0.6274510026, blue: 0.6274510026, alpha: 1)
-            textLabel.font = UIFont.systemFont(ofSize: 17)
-            let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: item.text)
-                attributeString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, attributeString.length))
-            textLabel.attributedText = attributeString
-
-        } else {
-            textLabel.text = item.text
-        }
-        
-        let cellLabel: UIStackView = {
-            let cellLabel = UIStackView()
-            cellLabel.axis = .vertical
-            cellLabel.distribution = .fill
-            cellLabel.alignment = .leading
-            cellLabel.spacing = 2
-            cellLabel.translatesAutoresizingMaskIntoConstraints = false
-            return cellLabel
-        }()
-        
-        cell.contentView.addSubview(cellLabel)
-        cellLabel.addArrangedSubview(textLabel)
-        
-        if let _ = item.deadline {
-            
-            let dateLabel = UILabel()
-            dateLabel.textColor = #colorLiteral(red: 0.6274510622, green: 0.6274510026, blue: 0.6274510026, alpha: 1)
-            dateLabel.font = UIFont.systemFont(ofSize: 15)
-            let calendarImage = UIImage(systemName: "calendar", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))!.withTintColor(#colorLiteral(red: 0.6274510622, green: 0.6274510026, blue: 0.6274510026, alpha: 1), renderingMode: .alwaysOriginal)
-            let calendarAttachment = NSTextAttachment()
-
-            calendarAttachment.image = calendarImage
-            
-            let calendarAttributedString = NSAttributedString(attachment: calendarAttachment)
-
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "dd MMMM"
-            let dateString = dateFormatter.string(from: item.deadline!)
-            let dateAttributedString = NSAttributedString(string: " " + dateString)
-
-            let attributedString = NSMutableAttributedString()
-            attributedString.append(calendarAttributedString)
-            attributedString.append(dateAttributedString)
-
-            dateLabel.attributedText = attributedString
-            
-            cellLabel.addArrangedSubview(dateLabel)
-        }
-        
-        NSLayoutConstraint.activate([
-            cellLabel.leftAnchor.constraint(equalTo: cell.leftAnchor, constant: 26),
-            cellLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor)
-        ])
-        
-
-        func prepareForReuse() {
-            
-//            self.prepareForReuse()
-        }
-                                                       
         return cell
     }
     
@@ -258,7 +196,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         listToDoTable.delegate = self
         listToDoTable.dataSource = self
         
-        listToDoTable.register(UITableViewCell.self, forCellReuseIdentifier: "cellId")
+        listToDoTable.register(ListToDoTableCell.self, forCellReuseIdentifier: ListToDoTableCell.identifier)
         listToDoTable.tableFooterView = newButton
         listToDoTable.tableFooterView?.frame = CGRect(x: 0, y: 0, width: listToDoTable.frame.width, height: 56)
         
@@ -387,13 +325,11 @@ extension ViewController {
         let deadlineList = list.ListToDo.filter { $0.deadline != nil }
         var count = deadlineList.count; var countDone = 0
         
-        print(count)
         if hideDone {
             count -= list.ListToDo.filter { $0.deadline != nil && $0.done }.count
             let doneList = list.ListToDo.filter { $0.done }
             countDone = doneList.count
         }
-        print(count, countDone, list.ListToDo.count)
         let heightConstraint = listToDoTable.heightAnchor.constraint(equalToConstant: CGFloat(count * 66 + (list.ListToDo.count - count - countDone + 1) * 56))
         heightConstraint.isActive = true
         listToDoTableHeightConstraint = heightConstraint
