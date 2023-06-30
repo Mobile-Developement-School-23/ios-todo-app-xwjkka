@@ -1,33 +1,34 @@
 
 import UIKit
+import CocoaLumberjack  // не знаю где использовать
 
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     var list = FileCache()
     var listToDoTableHeightConstraint: NSLayoutConstraint?
-    var hideDone = false
+    var hideDone = true
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        list.addToDo(TodoItem(text: "1 haha", importance: Importance.regular, done: true, created: Date()));
+        list.addToDo(TodoItem(text: "2 not haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "3 haha", importance: Importance.regular, deadline: Date(), created: Date()));
+        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
         list.addToDo(TodoItem(text: "haha", importance: Importance.regular, done: true, created: Date()));
         list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
         list.addToDo(TodoItem(text: "haha", importance: Importance.regular, deadline: Date(), created: Date()));
-//        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-//        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
-//        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-//        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, done: true, created: Date()));
-//        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-//        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, deadline: Date(), created: Date()));
-//        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-//        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
-//        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-//        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, done: true, created: Date()));
-//        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-//        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, deadline: Date(), created: Date()));
-//        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-//        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
-//        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, done: true, created: Date()));
+        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, deadline: Date(), created: Date()));
+        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
         
         title = "Мои дела"
         navigationController?.navigationBar.prefersLargeTitles = true
@@ -108,14 +109,19 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     
     func tableView(_ listToDoTable: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return list.ListToDo.count
+        if hideDone {
+            let count = list.ListToDo.filter({ $0.done }).count
+            return list.ListToDo.count - count + 1
+        } else {
+            return list.ListToDo.count
+        }
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if let _ = list.ListToDo[indexPath.row].deadline {
-            return 66
-        } else if hideDone && list.ListToDo[indexPath.row].done {
+        if hideDone && list.ListToDo[indexPath.row].done {
             return 0
+        } else if list.ListToDo[indexPath.row].deadline != nil {
+            return 66
         } else {
             return 56
         }
@@ -126,8 +132,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             let item = self.list.ListToDo[indexPath.row]
             let temp = TodoItem(id: item.id, text: item.text, importance: item.importance, deadline: item.deadline, done: !(item.done), created: item.created, changed: Date())
             self.list.addToDo(temp)
-
-            self.updateDoneLabel()
+            
+            self.updateTableView()
+            
             completion(true)
         }
         doneAction.image = UIImage(systemName:  "checkmark.circle.fill")
@@ -226,7 +233,13 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             cellLabel.leftAnchor.constraint(equalTo: cell.leftAnchor, constant: 26),
             cellLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor)
         ])
+        
 
+        func prepareForReuse() {
+            
+//            self.prepareForReuse()
+        }
+                                                       
         return cell
     }
     
@@ -244,11 +257,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let listToDoTable = UITableView()
         listToDoTable.delegate = self
         listToDoTable.dataSource = self
+        
         listToDoTable.register(UITableViewCell.self, forCellReuseIdentifier: "cellId")
         listToDoTable.tableFooterView = newButton
         listToDoTable.tableFooterView?.frame = CGRect(x: 0, y: 0, width: listToDoTable.frame.width, height: 56)
-//        listToDoTable.autoresizingMask = true
-//        listToDoTable.autoresizingMask = .flexibleHeight
         
         listToDoTable.isScrollEnabled = false
         listToDoTable.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
@@ -290,9 +302,14 @@ extension ViewController {
     }
     
     private func updateTableHeight() {
-        let doneList = list.ListToDo.filter { $0.deadline != nil }
-        let count = doneList.count
-        let height = CGFloat(count * 66 + (list.ListToDo.count - count + 1) * 56)
+        let deadlineList = list.ListToDo.filter { $0.deadline != nil }
+        var count = deadlineList.count; var countDone = 0
+        if hideDone {
+            count -= list.ListToDo.filter { $0.deadline != nil && $0.done}.count
+            let doneList = list.ListToDo.filter { $0.done }
+            countDone = doneList.count
+        }
+        let height = CGFloat(count * 66 + (list.ListToDo.count - count - countDone + 1) * 56)
     
         listToDoTableHeightConstraint?.constant = height
         
@@ -301,13 +318,25 @@ extension ViewController {
     
     @objc func showDoneButtonTapped() {
         hideDone = !hideDone
-        listToDoTable.reloadData()
-        updateTableHeight()
+        if hideDone {
+            showDoneButton.setTitle("Показать", for: .normal)
+        } else {
+            showDoneButton.setTitle("Скрыть", for: .normal)
+        }
+        
+        self.updateTableView()
+    }
+    
+    func updateTableView() {
+        self.listToDoTable.beginUpdates()
+//        self.listToDoTable.reloadData()
+        self.listToDoTable.reloadSections(IndexSet(integer: 0), with: .automatic)
+        self.listToDoTable.endUpdates()
+        self.updateTableHeight()
     }
 }
 
 extension ViewController {
-
     
     private func setupViewsConstraints() {
         scrollView.showsHorizontalScrollIndicator = false
@@ -333,7 +362,7 @@ extension ViewController {
 
         NSLayoutConstraint.activate([
             contentDoneView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            contentDoneView.heightAnchor.constraint(equalToConstant: 44),
+            contentDoneView.heightAnchor.constraint(equalToConstant: 44)
         ])
     }
 
@@ -352,13 +381,20 @@ extension ViewController {
         listToDoTable.translatesAutoresizingMaskIntoConstraints = false
 
         let bottomConstraint = listToDoTable.bottomAnchor.constraint(equalTo: newButton.topAnchor)
-        bottomConstraint.priority = UILayoutPriority(rawValue: 999)
+        bottomConstraint.priority = UILayoutPriority(rawValue: 751)
         bottomConstraint.isActive = true
         
-        let doneList = list.ListToDo.filter { $0.deadline != nil }
-        let count = doneList.count
+        let deadlineList = list.ListToDo.filter { $0.deadline != nil }
+        var count = deadlineList.count; var countDone = 0
         
-        let heightConstraint = listToDoTable.heightAnchor.constraint(equalToConstant: CGFloat(count * 66 + (list.ListToDo.count - count + 1) * 56))
+        print(count)
+        if hideDone {
+            count -= list.ListToDo.filter { $0.deadline != nil && $0.done }.count
+            let doneList = list.ListToDo.filter { $0.done }
+            countDone = doneList.count
+        }
+        print(count, countDone, list.ListToDo.count)
+        let heightConstraint = listToDoTable.heightAnchor.constraint(equalToConstant: CGFloat(count * 66 + (list.ListToDo.count - count - countDone + 1) * 56))
         heightConstraint.isActive = true
         listToDoTableHeightConstraint = heightConstraint
 
