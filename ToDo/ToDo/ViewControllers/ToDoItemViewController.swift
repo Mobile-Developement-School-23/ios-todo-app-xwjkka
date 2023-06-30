@@ -2,13 +2,9 @@ import UIKit
 
 
 class ToDoItemViewController: UIViewController, UITextViewDelegate {
-//    var list: FileCache
     var item: TodoItem?
-        
-//    init(list: FileCache) {
-//        self.list = list
-//        super.init(nibName: nil, bundle: nil)
-//    }
+    weak var delegate: ToDoItemViewControllerDelegate?
+
     init(item: TodoItem?) {
         self.item = item
         super.init(nibName: nil, bundle: nil)
@@ -261,6 +257,8 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate {
             deleteButton.isEnabled = true
         }
         
+        deleteButton.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
+        
         return deleteButton
     }()
 
@@ -273,7 +271,7 @@ extension ToDoItemViewController {
     // MARK: - for navBar
 
     @objc func saveBarButtonItemTapped(_ sender:UIBarButtonItem!) {
-        var deadlineDate = Date()
+        var deadlineDate: Date?
         if switchCase.isOn {
             deadlineDate = DateFormatter.DateFormatter.date(from: dateButton.title(for: .normal)!)!
         }
@@ -284,9 +282,23 @@ extension ToDoItemViewController {
         } else if importanceControl.selectedSegmentIndex == 2 {
             importanat = .important
         }
-        
-        let item = TodoItem(text: textView.text, importance: importanat, deadline: deadlineDate, created: Date())
 
+        let item = TodoItem(text: textView.text, importance: importanat, deadline: deadlineDate, created: Date())
+        
+        delegate?.didUpdateItem(item)
+        
+        self.dismiss(animated: true, completion: {
+            if let navController = self.navigationController {
+                navController.popToRootViewController(animated: true)
+            }
+        })
+    }
+    
+    @objc func deleteButtonTapped(_ sender:UIButton!) {
+        if let item = item {
+            delegate?.didDeleteItem(item.id)
+        }
+        
         self.dismiss(animated: true, completion: {
             if let navController = self.navigationController {
                 navController.popToRootViewController(animated: true)
@@ -323,10 +335,6 @@ extension ToDoItemViewController {
             self.navigationItem.rightBarButtonItem?.isEnabled = false
             textView.text = "Что надо сделать?"
             textView.textColor = UIColor.lightGray
-            
-            deleteButton.isEnabled = false
-            deleteButton.setTitleColor(#colorLiteral(red: 0.8196074367, green: 0.8196083307, blue: 0.8411096334, alpha: 1), for: .normal)
-            
         } else {
             self.navigationItem.rightBarButtonItem?.isEnabled = true
         }
@@ -482,4 +490,9 @@ extension DateFormatter {
         dateFormatter.setLocalizedDateFormatFromTemplate("dd MMMM yyyy")
         return dateFormatter
     }()
+}
+
+protocol ToDoItemViewControllerDelegate: AnyObject {
+    func didUpdateItem(_ item: TodoItem)
+    func didDeleteItem(_ id: String)
 }

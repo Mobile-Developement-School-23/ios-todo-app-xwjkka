@@ -160,26 +160,27 @@ class ListToDoTableCell: UITableViewCell {
     
     private lazy var dateLabel: UILabel = {
         let dateLabel = UILabel()
-        dateLabel.textColor =  #colorLiteral(red: 0.6274510622, green: 0.6274510026, blue: 0.6274510026, alpha: 1)
-        dateLabel.font = UIFont.systemFont(ofSize: 15)
-        let calendarImage = UIImage(systemName: "calendar", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))!.withTintColor( #colorLiteral(red: 0.6274510622, green: 0.6274510026, blue: 0.6274510026, alpha: 1), renderingMode: .alwaysOriginal)
-        let calendarAttachment = NSTextAttachment()
+        if let deadline = item.deadline {
+            dateLabel.textColor =  #colorLiteral(red: 0.6274510622, green: 0.6274510026, blue: 0.6274510026, alpha: 1)
+            dateLabel.font = UIFont.systemFont(ofSize: 15)
+            let calendarImage = UIImage(systemName: "calendar", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))!.withTintColor( #colorLiteral(red: 0.6274510622, green: 0.6274510026, blue: 0.6274510026, alpha: 1), renderingMode: .alwaysOriginal)
+            let calendarAttachment = NSTextAttachment()
 
-        calendarAttachment.image = calendarImage
-        
-        let calendarAttributedString = NSAttributedString(attachment: calendarAttachment)
+            calendarAttachment.image = calendarImage
+            
+            let calendarAttributedString = NSAttributedString(attachment: calendarAttachment)
 
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd MMMM"
-        let dateString = dateFormatter.string(from: item.deadline ?? Date())
-        let dateAttributedString = NSAttributedString(string: " " + dateString)
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "dd MMMM"
+            let dateString = dateFormatter.string(from: deadline)
+            let dateAttributedString = NSAttributedString(string: " " + dateString)
 
-        let attributedString = NSMutableAttributedString()
-        attributedString.append(calendarAttributedString)
-        attributedString.append(dateAttributedString)
+            let attributedString = NSMutableAttributedString()
+            attributedString.append(calendarAttributedString)
+            attributedString.append(dateAttributedString)
 
-        dateLabel.attributedText = attributedString
-        
+            dateLabel.attributedText = attributedString
+        }
         return dateLabel
     }()
     
@@ -187,6 +188,7 @@ class ListToDoTableCell: UITableViewCell {
         self.accessoryType = .disclosureIndicator
         self.item = item
         
+//        print(item)
         self.addSubview(cellLabel)
         cellTextLabel.text = item.text
         cellLabel.addArrangedSubview(cellTextLabel)

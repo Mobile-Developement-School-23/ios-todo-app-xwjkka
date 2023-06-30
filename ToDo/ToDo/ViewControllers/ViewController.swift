@@ -2,7 +2,17 @@
 import UIKit
 import CocoaLumberjack  // не знаю где использовать
 
-class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ToDoItemViewControllerDelegate {
+    
+    func didUpdateItem(_ item: TodoItem) {
+        self.list.addToDo(item)
+        self.updateTableView()
+    }
+    
+    func didDeleteItem(_ id: String) {
+        self.list.deleteToDo(id)
+        self.updateTableView()
+    }
     
     var list = FileCache()
     var listToDoTableHeightConstraint: NSLayoutConstraint?
@@ -10,22 +20,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        list.addToDo(TodoItem(text: "1 haha", importance: Importance.regular, done: true, created: Date()));
-        list.addToDo(TodoItem(text: "2 not haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "3 haha", importance: Importance.regular, deadline: Date(), done: true, created: Date()));
-        list.addToDo(TodoItem(text: "4 not haha", importance: Importance.regular, created: Date()));
-//        list.addToDo(TodoItem(text: "5 haha", importance: Importance.regular, created: Date()));
-//        list.addToDo(TodoItem(text: "6 not haha", importance: Importance.regular, created: Date()));
-//        list.addToDo(TodoItem(text: "7 haha", importance: Importance.regular, done: true, created: Date()));
-//        list.addToDo(TodoItem(text: "8 not haha", importance: Importance.regular, created: Date()));
-//        list.addToDo(TodoItem(text: "9 haha", importance: Importance.regular, deadline: Date(), created: Date()));
-//        list.addToDo(TodoItem(text: "10 not haha", importance: Importance.regular, created: Date()));
-//        list.addToDo(TodoItem(text: "11 haha", importance: Importance.regular, created: Date()));
-//        list.addToDo(TodoItem(text: "12 not haha", importance: Importance.regular, created: Date()));
-//        list.addToDo(TodoItem(text: "13 haha", importance: Importance.regular, done: true, created: Date()));
-//        list.addToDo(TodoItem(text: "14 not haha", importance: Importance.regular, created: Date()));
-//        list.addToDo(TodoItem(text: "15 haha", importance: Importance.regular, deadline: Date(), created: Date()));
         
         title = "Мои дела"
         navigationController?.navigationBar.prefersLargeTitles = true
@@ -145,8 +139,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     -> UISwipeActionsConfiguration? {
         let infoAction = UIContextualAction(style: .normal, title: "info") { (action, view, completion) in
             let toDoItemViewController = ToDoItemViewController(item: self.list.ListToDo[indexPath.row])
+//            ViewController.delegate = ToDoItemViewControllerDelegate
+            toDoItemViewController.delegate = self
             let navigationController = UINavigationController(rootViewController: toDoItemViewController)
             self.present(navigationController, animated: true, completion: nil)
+//            self.updateTableView()
             completion(true)
         }
         infoAction.image = UIImage(systemName: "info.circle")
@@ -228,7 +225,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             ])
 
 
-        addButton.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
+        addButton.addTarget(ViewController.self, action: #selector(addButtonTapped), for: .touchUpInside)
         return addButton
     }()
 }
@@ -237,6 +234,7 @@ extension ViewController {
     @objc func addButtonTapped() {
         let toDoItemViewController = ToDoItemViewController(item: nil)
         let navigationController = UINavigationController(rootViewController: toDoItemViewController)
+        toDoItemViewController.delegate = self
         present(navigationController, animated: true, completion: nil)
     }
     
@@ -266,15 +264,11 @@ extension ViewController {
         } else {
             showDoneButton.setTitle("Скрыть", for: .normal)
         }
-        print(list.ListToDo)
         self.updateTableView()
     }
     
     func updateTableView() {
-        self.listToDoTable.beginUpdates()
-//        self.listToDoTable.reloadData()
-        self.listToDoTable.reloadSections(IndexSet(integer: 0), with: .automatic)
-        self.listToDoTable.endUpdates()
+        self.listToDoTable.reloadData()
         self.updateTableHeight()
     }
 }
