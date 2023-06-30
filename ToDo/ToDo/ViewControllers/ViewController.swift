@@ -13,22 +13,19 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         list.addToDo(TodoItem(text: "1 haha", importance: Importance.regular, done: true, created: Date()));
         list.addToDo(TodoItem(text: "2 not haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "3 haha", importance: Importance.regular, deadline: Date(), created: Date()));
-        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, done: true, created: Date()));
-        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, deadline: Date(), created: Date()));
-        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, done: true, created: Date()));
-        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, deadline: Date(), created: Date()));
-        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "haha", importance: Importance.regular, created: Date()));
-        list.addToDo(TodoItem(text: "not haha", importance: Importance.regular, created: Date()));
+        list.addToDo(TodoItem(text: "3 haha", importance: Importance.regular, deadline: Date(), done: true, created: Date()));
+        list.addToDo(TodoItem(text: "4 not haha", importance: Importance.regular, created: Date()));
+//        list.addToDo(TodoItem(text: "5 haha", importance: Importance.regular, created: Date()));
+//        list.addToDo(TodoItem(text: "6 not haha", importance: Importance.regular, created: Date()));
+//        list.addToDo(TodoItem(text: "7 haha", importance: Importance.regular, done: true, created: Date()));
+//        list.addToDo(TodoItem(text: "8 not haha", importance: Importance.regular, created: Date()));
+//        list.addToDo(TodoItem(text: "9 haha", importance: Importance.regular, deadline: Date(), created: Date()));
+//        list.addToDo(TodoItem(text: "10 not haha", importance: Importance.regular, created: Date()));
+//        list.addToDo(TodoItem(text: "11 haha", importance: Importance.regular, created: Date()));
+//        list.addToDo(TodoItem(text: "12 not haha", importance: Importance.regular, created: Date()));
+//        list.addToDo(TodoItem(text: "13 haha", importance: Importance.regular, done: true, created: Date()));
+//        list.addToDo(TodoItem(text: "14 not haha", importance: Importance.regular, created: Date()));
+//        list.addToDo(TodoItem(text: "15 haha", importance: Importance.regular, deadline: Date(), created: Date()));
         
         title = "Мои дела"
         navigationController?.navigationBar.prefersLargeTitles = true
@@ -111,7 +108,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func tableView(_ listToDoTable: UITableView, numberOfRowsInSection section: Int) -> Int {
         if hideDone {
             let count = list.ListToDo.filter({ $0.done }).count
-            return list.ListToDo.count - count + 1
+            return list.ListToDo.count - count  // было +1
         } else {
             return list.ListToDo.count
         }
@@ -133,6 +130,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             let temp = TodoItem(id: item.id, text: item.text, importance: item.importance, deadline: item.deadline, done: !(item.done), created: item.created, changed: Date())
             self.list.addToDo(temp)
             
+            self.updateDoneLabel()
             self.updateTableView()
             
             completion(true)
@@ -146,6 +144,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath)
     -> UISwipeActionsConfiguration? {
         let infoAction = UIContextualAction(style: .normal, title: "info") { (action, view, completion) in
+            let toDoItemViewController = ToDoItemViewController(item: self.list.ListToDo[indexPath.row])
+            let navigationController = UINavigationController(rootViewController: toDoItemViewController)
+            self.present(navigationController, animated: true, completion: nil)
             completion(true)
         }
         infoAction.image = UIImage(systemName: "info.circle")
@@ -234,20 +235,24 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
 extension ViewController {
     @objc func addButtonTapped() {
-        let toDoItemViewController = ToDoItemViewController(list: list)
+        let toDoItemViewController = ToDoItemViewController(item: nil)
         let navigationController = UINavigationController(rootViewController: toDoItemViewController)
         present(navigationController, animated: true, completion: nil)
     }
     
     private func updateTableHeight() {
-        let deadlineList = list.ListToDo.filter { $0.deadline != nil }
-        var count = deadlineList.count; var countDone = 0
+//        let deadlineCount = list.ListToDo.filter { $0.deadline != nil && !$0.done }.count
+//        var count = list.ListToDo.count
+//        if hideDone {
+//            count -= list.ListToDo.filter { $0.done }.count
+//        }
+//        let height = CGFloat(deadlineCount * 66 + (count + 1) * 56)
+        let deadlineCount = list.ListToDo.filter { $0.deadline != nil && $0.done == false }.count
+        var count = list.ListToDo.count - deadlineCount
         if hideDone {
-            count -= list.ListToDo.filter { $0.deadline != nil && $0.done}.count
-            let doneList = list.ListToDo.filter { $0.done }
-            countDone = doneList.count
+            count -= list.ListToDo.filter { $0.done }.count
         }
-        let height = CGFloat(count * 66 + (list.ListToDo.count - count - countDone + 1) * 56)
+        let height = CGFloat(deadlineCount * 66 + (count + 1) * 56)
     
         listToDoTableHeightConstraint?.constant = height
         
@@ -261,7 +266,7 @@ extension ViewController {
         } else {
             showDoneButton.setTitle("Скрыть", for: .normal)
         }
-        
+        print(list.ListToDo)
         self.updateTableView()
     }
     
@@ -318,19 +323,17 @@ extension ViewController {
     private func setuplistToDoTableConstraints() {
         listToDoTable.translatesAutoresizingMaskIntoConstraints = false
 
-        let bottomConstraint = listToDoTable.bottomAnchor.constraint(equalTo: newButton.topAnchor)
-        bottomConstraint.priority = UILayoutPriority(rawValue: 751)
+        let bottomConstraint = listToDoTable.bottomAnchor.constraint(equalTo: newButton.bottomAnchor)
         bottomConstraint.isActive = true
         
-        let deadlineList = list.ListToDo.filter { $0.deadline != nil }
-        var count = deadlineList.count; var countDone = 0
-        
+        let deadlineCount = list.ListToDo.filter { $0.deadline != nil && $0.done == false }.count
+        var count = list.ListToDo.count - deadlineCount
         if hideDone {
-            count -= list.ListToDo.filter { $0.deadline != nil && $0.done }.count
-            let doneList = list.ListToDo.filter { $0.done }
-            countDone = doneList.count
+            count -= list.ListToDo.filter { $0.done }.count
         }
-        let heightConstraint = listToDoTable.heightAnchor.constraint(equalToConstant: CGFloat(count * 66 + (list.ListToDo.count - count - countDone + 1) * 56))
+        let height = CGFloat(deadlineCount * 66 + (count + 1) * 56)
+        
+        let heightConstraint = listToDoTable.heightAnchor.constraint(equalToConstant: height)
         heightConstraint.isActive = true
         listToDoTableHeightConstraint = heightConstraint
 

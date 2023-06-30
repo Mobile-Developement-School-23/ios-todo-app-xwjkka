@@ -115,10 +115,13 @@ class ListToDoTableCell: UITableViewCell {
             cellLabel.removeArrangedSubview(subview)
             subview.removeFromSuperview()
         }
+//        cellTextLabel.attributedText
+        var attributedText = NSMutableAttributedString(string: cellTextLabel.text ?? "")
         cellTextLabel.text = ""
-//        dateLabel.text = ""
-        let attributedText = NSMutableAttributedString(string: dateLabel.text ?? "")
-//        dateLabel.attributedText = attributedText
+        cellTextLabel.attributedText = attributedText
+        dateLabel.text = ""
+        attributedText = NSMutableAttributedString(string: dateLabel.text ?? "")
+        dateLabel.attributedText = attributedText
         super.prepareForReuse()
     }
 
@@ -138,7 +141,6 @@ class ListToDoTableCell: UITableViewCell {
             let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: item.text)
                 attributeString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, attributeString.length))
             cellTextLabel.attributedText = attributeString
-
         } else {
             cellTextLabel.text = item.text
         }
@@ -182,7 +184,7 @@ class ListToDoTableCell: UITableViewCell {
     }()
     
     func configure(with item: TodoItem) {
-//        titleLabel.text = item.text
+        self.accessoryType = .disclosureIndicator
         self.item = item
         
         self.addSubview(cellLabel)
@@ -192,6 +194,8 @@ class ListToDoTableCell: UITableViewCell {
             dateLabel.text = DateFormatter.DateFormatter.string(from: item.deadline!)
             cellLabel.addArrangedSubview(dateLabel)
         }
+        
+        setupConstraints()
     }
     
     func setupConstraints() {
@@ -205,8 +209,6 @@ class ListToDoTableCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
-//        setupConstraints()
     }
 
     required init?(coder: NSCoder) {

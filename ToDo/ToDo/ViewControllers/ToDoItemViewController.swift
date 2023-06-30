@@ -2,12 +2,18 @@ import UIKit
 
 
 class ToDoItemViewController: UIViewController, UITextViewDelegate {
-    var list: FileCache
+//    var list: FileCache
+    var item: TodoItem?
         
-    init(list: FileCache) {
-        self.list = list
+//    init(list: FileCache) {
+//        self.list = list
+//        super.init(nibName: nil, bundle: nil)
+//    }
+    init(item: TodoItem?) {
+        self.item = item
         super.init(nibName: nil, bundle: nil)
     }
+    
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -89,8 +95,11 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate {
         
         textView.isScrollEnabled = false
         
-        textView.text = "Что надо сделать?"
+        textView.text = item?.text ?? "Что надо сделать?"
         textView.textColor = UIColor.lightGray
+        if let _ = item?.text {
+            textView.textColor = .black
+        }
         textView.font = UIFont.systemFont(ofSize: 17)
         textView.textContainerInset = UIEdgeInsets(top: 17, left: 16, bottom: 17, right: 16)
         textView.delegate = self
@@ -155,7 +164,13 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate {
         let twoExclamation = UIImage(systemName: "exclamationmark.2", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))!.withTintColor(#colorLiteral(red: 1, green: 0.2332399487, blue: 0.1861645281, alpha: 1), renderingMode: .alwaysOriginal)
         
         let importanceControl = UISegmentedControl(items: [downArrow, "нет", twoExclamation])
+        
         importanceControl.selectedSegmentIndex = 1
+        if item?.importance == .unimportant {
+            importanceControl.selectedSegmentIndex = 0
+        } else if item?.importance == .important {
+            importanceControl.selectedSegmentIndex = 2
+        }
         importanceControl.setWidth(49, forSegmentAt: 0)
         importanceControl.setWidth(49, forSegmentAt: 1)
         importanceControl.setWidth(49, forSegmentAt: 2)
@@ -199,6 +214,9 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate {
     private lazy var switchCase: UISwitch = {
         let switchCase = UISwitch()
         switchCase.isOn = false
+        if let _ = item?.deadline {
+            switchCase.isOn = true
+        }
         switchCase.addTarget(self, action: #selector(switchToggled(_:)), for: .valueChanged)
         
         return switchCase
@@ -217,10 +235,9 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate {
     }()
     
     private lazy var calendarView: UIDatePicker = {
-
         let calendarView = UIDatePicker()
         calendarView.datePickerMode = .date
-        calendarView.date = Date().addingTimeInterval(3600*24)
+        calendarView.date = item?.deadline ?? Date().addingTimeInterval(3600*24)
         calendarView.preferredDatePickerStyle = .inline
         calendarView.minimumDate = Date()
 
@@ -240,6 +257,9 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate {
         deleteButton.setTitleColor(.red, for: .normal)
         
         deleteButton.isEnabled = false
+        if let _ = item {
+            deleteButton.isEnabled = true
+        }
         
         return deleteButton
     }()
@@ -267,12 +287,6 @@ extension ToDoItemViewController {
         
         let item = TodoItem(text: textView.text, importance: importanat, deadline: deadlineDate, created: Date())
 
-        list.addToDo(item)
-//        UIView.transition(with: self.list.ListToDo,
-//                          duration: 0.35,
-//                          options: .transitionCrossDissolve,
-//                          animations: { self.list.ListToDo.reloadData() })
-        
         self.dismiss(animated: true, completion: {
             if let navController = self.navigationController {
                 navController.popToRootViewController(animated: true)
@@ -315,9 +329,6 @@ extension ToDoItemViewController {
             
         } else {
             self.navigationItem.rightBarButtonItem?.isEnabled = true
-            
-            deleteButton.isEnabled = true
-            deleteButton.setTitleColor(#colorLiteral(red: 1, green: 0.2332399487, blue: 0.1861645281, alpha: 1), for: .normal)
         }
         textView.resignFirstResponder()
     }
