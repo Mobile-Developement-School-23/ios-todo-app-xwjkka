@@ -1,108 +1,3 @@
-//import UIKit
-//
-//final class ListToDoTableCell: UITableViewCell {
-//    static let identifier = "cellId"
-//    var item: TodoItem!
-//    var IndexPath: IndexPath!
-//
-//    override func prepareForReuse() {
-//        super.prepareForReuse()
-//    }
-//
-//    func setupConstraints() {
-//        cellLabel.translatesAutoresizingMaskIntoConstraints = false
-//
-//        NSLayoutConstraint.activate([
-//            cellLabel.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 26),
-//            cellLabel.centerYAnchor.constraint(equalTo: self.contentView.centerYAnchor)
-//        ])
-//    }
-//
-//    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-//        super.init(style: style, reuseIdentifier: reuseIdentifier)
-//        setupConstraints()
-//    }
-//
-//    required init?(coder: NSCoder) {
-//        fatalError("init(coder:) has not been implemented")
-//    }
-//
-//    func configureCell(with item: TodoItem, at indexPath: IndexPath) {
-//        item = item
-//        IndexPath = indexPath
-//
-//        cellTextLabel.text = item.text
-//
-//        self.contentView.addSubview(cellLabel)
-//        cellLabel.addArrangedSubview(cellTextLabel)
-//
-//        if let _ = item.deadline {
-//            cellLabel.addArrangedSubview(dateLabel)
-//        }
-//    }
-//
-//    private lazy var cellTextLabel: UILabel = {
-//        let cellTextLabel = UILabel()
-//        if item.done {
-//            cellTextLabel.text = item.text
-//            cellTextLabel.textColor = ##colorLiteral(red: 0.6274510622, green: 0.6274510026, blue: 0.6274510026, alpha: 1)
-//            cellTextLabel.font = UIFont.systemFont(ofSize: 17)
-//            let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: item.text)
-//                attributeString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, attributeString.length))
-//            cellTextLabel.attributedText = attributeString
-//
-//        } else {
-//            cellTextLabel.text = item.text
-//        }
-//
-//        return cellTextLabel
-//    }()
-//
-//    private lazy var cellLabel: UIStackView = {
-//        let cellLabel = UIStackView()
-//        cellLabel.axis = .vertical
-//        cellLabel.distribution = .fill
-//        cellLabel.alignment = .leading
-//        cellLabel.spacing = 2
-//        cellLabel.translatesAutoresizingMaskIntoConstraints = false
-//        return cellLabel
-//    }()
-//
-//    private lazy var dateLabel: UILabel = {
-//        let dateLabel = UILabel()
-//        dateLabel.textColor = #colorLiteral(red: 0.6274510622, green: 0.6274510026, blue: 0.6274510026, alpha: 1)
-//        dateLabel.font = UIFont.systemFont(ofSize: 15)
-//        let calendarImage = UIImage(systemName: "calendar", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))!.withTintColor(#colorLiteral(red: 0.6274510622, green: 0.6274510026, blue: 0.6274510026, alpha: 1), renderingMode: .alwaysOriginal)
-//        let calendarAttachment = NSTextAttachment()
-//
-//        calendarAttachment.image = calendarImage
-//
-//        let calendarAttributedString = NSAttributedString(attachment: calendarAttachment)
-//
-//        let dateFormatter = DateFormatter()
-//        dateFormatter.dateFormat = "dd MMMM"
-//        let dateString = dateFormatter.string(from: item.deadline!)
-//        let dateAttributedString = NSAttributedString(string: " " + dateString)
-//
-//        let attributedString = NSMutableAttributedString()
-//        attributedString.append(calendarAttributedString)
-//        attributedString.append(dateAttributedString)
-//
-//        dateLabel.attributedText = attributedString
-//
-//        return dateLabel
-//    }()
-//
-////    func make() {
-////        self.contentView.addSubview(cellLabel)
-////        cellLabel.addArrangedSubview(cellTextLabel)
-////
-////        if let _ = item.deadline {
-////            cellLabel.addArrangedSubview(dateLabel)
-////        }
-////    }
-//}
-
 import UIKit
 
 class ListToDoTableCell: UITableViewCell {
@@ -115,13 +10,12 @@ class ListToDoTableCell: UITableViewCell {
             cellLabel.removeArrangedSubview(subview)
             subview.removeFromSuperview()
         }
-//        cellTextLabel.attributedText
         var attributedText = NSMutableAttributedString(string: cellTextLabel.text ?? "")
         cellTextLabel.text = ""
         cellTextLabel.attributedText = attributedText
-        dateLabel.text = ""
-        attributedText = NSMutableAttributedString(string: dateLabel.text ?? "")
-        dateLabel.attributedText = attributedText
+//        attributedText = NSMutableAttributedString(string: dateLabel.text ?? "")
+//        dateLabel.attributedText = attributedText
+//        dateLabel.text = ""
         super.prepareForReuse()
     }
 
@@ -157,43 +51,38 @@ class ListToDoTableCell: UITableViewCell {
         cellLabel.translatesAutoresizingMaskIntoConstraints = false
         return cellLabel
     }()
-    
-    private lazy var dateLabel: UILabel = {
-        let dateLabel = UILabel()
-        if let deadline = item.deadline {
-            dateLabel.textColor =  #colorLiteral(red: 0.6274510622, green: 0.6274510026, blue: 0.6274510026, alpha: 1)
-            dateLabel.font = UIFont.systemFont(ofSize: 15)
-            let calendarImage = UIImage(systemName: "calendar", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))!.withTintColor( #colorLiteral(red: 0.6274510622, green: 0.6274510026, blue: 0.6274510026, alpha: 1), renderingMode: .alwaysOriginal)
-            let calendarAttachment = NSTextAttachment()
+    private lazy var dateLabel: UIStackView = {
+        let dateLabel = UIStackView()
+        dateLabel.axis = .horizontal
 
-            calendarAttachment.image = calendarImage
-            
-            let calendarAttributedString = NSAttributedString(attachment: calendarAttachment)
-
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "dd MMMM"
-            let dateString = dateFormatter.string(from: deadline)
-            let dateAttributedString = NSAttributedString(string: " " + dateString)
-
-            let attributedString = NSMutableAttributedString()
-            attributedString.append(calendarAttributedString)
-            attributedString.append(dateAttributedString)
-
-            dateLabel.attributedText = attributedString
-        }
+        dateLabel.addArrangedSubview(calendarImageView)
+        dateLabel.addArrangedSubview(dateString)
+        
         return dateLabel
+    }()
+    
+    private lazy var calendarImageView: UIImageView = {
+        let calendarImageView = UIImageView()
+        calendarImageView.image = UIImage(systemName: "calendar", withConfiguration: UIImage.SymbolConfiguration(weight: .light))!.withTintColor( #colorLiteral(red: 0.6274510622, green: 0.6274510026, blue: 0.6274510026, alpha: 1), renderingMode: .alwaysOriginal)
+        return calendarImageView
+    }()
+    
+    private lazy var dateString: UILabel = {
+        var dateString = UILabel()
+        if let deadline = item.deadline {
+            dateString.text = DateFormatter.DateFormatter.string(from: deadline)
+        }
+        return dateString
     }()
     
     func configure(with item: TodoItem) {
         self.accessoryType = .disclosureIndicator
         self.item = item
         
-//        print(item)
         self.addSubview(cellLabel)
         cellTextLabel.text = item.text
         cellLabel.addArrangedSubview(cellTextLabel)
         if item.deadline != nil {
-            dateLabel.text = DateFormatter.DateFormatter.string(from: item.deadline!)
             cellLabel.addArrangedSubview(dateLabel)
         }
         
