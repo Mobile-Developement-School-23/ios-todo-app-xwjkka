@@ -13,9 +13,13 @@ class ListToDoTableCell: UITableViewCell {
         var attributedText = NSMutableAttributedString(string: cellTextLabel.text ?? "")
         cellTextLabel.text = ""
         cellTextLabel.attributedText = attributedText
-//        attributedText = NSMutableAttributedString(string: dateLabel.text ?? "")
-//        dateLabel.attributedText = attributedText
-//        dateLabel.text = ""
+        
+        dateLabel.arrangedSubviews.forEach { subview in
+            dateLabel.removeArrangedSubview(subview)
+            subview.removeFromSuperview()
+        }
+        dateString.text = ""
+        
         super.prepareForReuse()
     }
 
@@ -67,6 +71,17 @@ class ListToDoTableCell: UITableViewCell {
         return calendarImageView
     }()
     
+    private lazy var radioButtonView: UIImageView = {
+        let radioButtonView = UIImageView()
+        var radioButtonViewImage = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(weight: .regular))!.withTintColor( #colorLiteral(red: 0.6274510622, green: 0.6274510026, blue: 0.6274510026, alpha: 1), renderingMode: .alwaysOriginal)
+        if item.importance == .important {
+            print("1")
+            radioButtonViewImage = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(weight: .regular))!.withTintColor( #colorLiteral(red: 1, green: 0.2332399487, blue: 0.1861645281, alpha: 1), renderingMode: .alwaysOriginal)
+        }
+        radioButtonView.image = radioButtonViewImage
+        return radioButtonView
+    }()
+    
     private lazy var dateString: UILabel = {
         var dateString = UILabel()
         if let deadline = item.deadline {
@@ -79,6 +94,7 @@ class ListToDoTableCell: UITableViewCell {
         self.accessoryType = .disclosureIndicator
         self.item = item
         
+        self.addSubview(radioButtonView)
         self.addSubview(cellLabel)
         cellTextLabel.text = item.text
         cellLabel.addArrangedSubview(cellTextLabel)
@@ -90,10 +106,16 @@ class ListToDoTableCell: UITableViewCell {
     }
     
     func setupConstraints() {
+        radioButtonView.translatesAutoresizingMaskIntoConstraints = false
         cellLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            cellLabel.leftAnchor.constraint(equalTo: super.leftAnchor, constant: 26),
+            radioButtonView.leftAnchor.constraint(equalTo: super.leftAnchor, constant: 16),
+            radioButtonView.widthAnchor.constraint(equalToConstant: 24),
+            radioButtonView.heightAnchor.constraint(equalToConstant: 24),
+            radioButtonView.centerYAnchor.constraint(equalTo: super.contentView.centerYAnchor),
+            
+            cellLabel.leftAnchor.constraint(equalTo: radioButtonView.rightAnchor, constant: 12),
             cellLabel.centerYAnchor.constraint(equalTo: super.contentView.centerYAnchor)
         ])
     }

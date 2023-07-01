@@ -101,17 +101,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     func tableView(_ listToDoTable: UITableView, numberOfRowsInSection section: Int) -> Int {
         if hideDone {
-            let count = list.ListToDo.filter({ $0.done }).count
-            return list.ListToDo.count - count  // было +1
+            return list.ListToDo.filter({ !$0.done }).count
         } else {
             return list.ListToDo.count
         }
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if hideDone && list.ListToDo[indexPath.row].done {
-            return 0
-        } else if list.ListToDo[indexPath.row].deadline != nil {
+        if list.ListToDo[indexPath.row].deadline != nil {
             return 66
         } else {
             return 56
@@ -239,12 +236,6 @@ extension ViewController {
     }
     
     private func updateTableHeight() {
-//        let deadlineCount = list.ListToDo.filter { $0.deadline != nil && !$0.done }.count
-//        var count = list.ListToDo.count
-//        if hideDone {
-//            count -= list.ListToDo.filter { $0.done }.count
-//        }
-//        let height = CGFloat(deadlineCount * 66 + (count + 1) * 56)
         let deadlineCount = list.ListToDo.filter { $0.deadline != nil && $0.done == false }.count
         var count = list.ListToDo.count - deadlineCount
         if hideDone {
