@@ -1,0 +1,25 @@
+included:
+  - ToDo
+  - ToDoTests
+
+opt_in_rules:
+  - empty_count
+  - missing_docs
+
+excluded:
+  - ToDo/Resources
+
+disabled_rules:
+  - colon
+  - comma
+  - control_statement
+
+analyzer_rules:
+  - unused_declaration
+  - unused_import
+
+line_length:
+  warning: 120
+
+function_body_length: 60
+reporter: xcode
