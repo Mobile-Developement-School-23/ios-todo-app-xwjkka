@@ -15,6 +15,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     var list = FileCache()
+//    list.loadFromFile(paths: к)
     var listToDoTableHeightConstraint: NSLayoutConstraint?
     var hideDone = true
     
@@ -94,6 +95,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         showDoneButton.addTarget(self, action: #selector(showDoneButtonTapped), for: .touchUpInside)
         
+//        showDoneButton.isEnabled = false
         return showDoneButton
     }()
 
@@ -108,7 +110,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if list.ListToDo[indexPath.row].deadline != nil {
+        if hideDone && list.ListToDo[indexPath.row].done == true {
+            return 0
+        } else if list.ListToDo[indexPath.row].deadline != nil {
             return 66
         } else {
             return 56
@@ -120,7 +124,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             let item = self.list.ListToDo[indexPath.row]
             let temp = TodoItem(id: item.id, text: item.text, importance: item.importance, deadline: item.deadline, done: !(item.done), created: item.created, changed: Date())
             self.list.addToDo(temp)
-            
             self.updateDoneLabel()
             self.updateTableView()
             
@@ -136,11 +139,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     -> UISwipeActionsConfiguration? {
         let infoAction = UIContextualAction(style: .normal, title: "info") { (action, view, completion) in
             let toDoItemViewController = ToDoItemViewController(item: self.list.ListToDo[indexPath.row])
-//            ViewController.delegate = ToDoItemViewControllerDelegate
             toDoItemViewController.delegate = self
             let navigationController = UINavigationController(rootViewController: toDoItemViewController)
             self.present(navigationController, animated: true, completion: nil)
-//            self.updateTableView()
             completion(true)
         }
         infoAction.image = UIImage(systemName: "info.circle")
@@ -152,6 +153,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                               duration: 0.35,
                               options: .curveEaseInOut,
                               animations: { self.updateTableHeight() })
+            self.updateDoneLabel()
         }
         
         deleteAction.image = UIImage(systemName: "trash")
@@ -170,6 +172,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         } else {
             cell.isHidden = false
         }
+        
+        cell.item = item
 
         cell.configure(with: item)
         
@@ -222,7 +226,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             ])
 
 
-        addButton.addTarget(ViewController.self, action: #selector(addButtonTapped), for: .touchUpInside)
+        addButton.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
         return addButton
     }()
 }
@@ -236,13 +240,15 @@ extension ViewController {
     }
     
     private func updateTableHeight() {
-        let deadlineCount = list.ListToDo.filter { $0.deadline != nil && $0.done == false }.count
-        var count = list.ListToDo.count - deadlineCount
+        var deadlineCount = list.ListToDo.filter { $0.deadline != nil }.count
+        var count = list.ListToDo.filter { $0.deadline == nil }.count
         if hideDone {
-            count -= list.ListToDo.filter { $0.done }.count
+            deadlineCount -= list.ListToDo.filter { $0.deadline != nil && $0.done }.count
+            count -= list.ListToDo.filter { $0.deadline == nil && $0.done }.count
         }
+        
         let height = CGFloat(deadlineCount * 66 + (count + 1) * 56)
-    
+        
         listToDoTableHeightConstraint?.constant = height
         
         view.layoutIfNeeded()
@@ -311,11 +317,13 @@ extension ViewController {
         let bottomConstraint = listToDoTable.bottomAnchor.constraint(equalTo: newButton.bottomAnchor)
         bottomConstraint.isActive = true
         
-        let deadlineCount = list.ListToDo.filter { $0.deadline != nil && $0.done == false }.count
-        var count = list.ListToDo.count - deadlineCount
+        var deadlineCount = list.ListToDo.filter { $0.deadline != nil }.count
+        var count = list.ListToDo.filter { $0.deadline == nil }.count
         if hideDone {
-            count -= list.ListToDo.filter { $0.done }.count
+            deadlineCount -= list.ListToDo.filter { $0.deadline != nil && $0.done }.count
+            count -= list.ListToDo.filter { $0.deadline == nil && $0.done }.count
         }
+        
         let height = CGFloat(deadlineCount * 66 + (count + 1) * 56)
         
         let heightConstraint = listToDoTable.heightAnchor.constraint(equalToConstant: height)
