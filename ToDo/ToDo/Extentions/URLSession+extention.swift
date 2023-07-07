@@ -28,6 +28,40 @@ extension URLSession {
 }
 
 
+//extension URLSession {
+//    func dataTask(for urlRequest: URLRequest) async throws -> (Data, URL) {
+//        var currentDataTask: URLSessionDataTask?
+//        return try await withTaskCancellationHandler{
+//            return try await withCheckedThrowingContinuation { continuation in
+//                currentDataTask = URLSession. shared.dataTask(with: urlRequest) { data, responce, error in
+//                    if let error = error {
+//                        continuation.resume (throwing: error)
+//                    } else if let data = data, let responce = responce {
+//                        continuation.resume (returning: (data, responce))
+//                    } else {
+//                        continuation.resume (throwing: URLError.invalidData)
+//                    }
+//            }
+//        }
+//    }
+//    var currentDataTask: URLSessionDataTask?
+//    (Data, URLResponse) {
+//    return try await withTaskCancellationHandler{
+//    return try await withCheckedThrowingContinuation { continuation in
+//    currentDataTask = URLSession. shared.dataTask(with: urlRequest) { data,
+//    responce, error in
+//    if let error = error {
+//    continuation. resume (throwing: error)
+//    } else if let data = data, let responce = responce {
+//    continuation. resume (returning: (data, responce))
+//    } else
+//    continuation. resume (throwing: URLError.invalidData)
+//    currentDataTask?.resume()
+//    } onCancel: { [weak currentDataTask] in
+//    currentDataTask?.cancel()
+//}
+
+
 //let data: (Data, URLResponse) = try await withCheckedThrowingContinuation({ continuation in
 //    let task = URLSession.shared.dataTask(with: request) { data, response, error in
 //        if let error = error {

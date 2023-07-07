@@ -15,11 +15,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.makeKeyAndVisible()
 //        window?.rootViewController = ViewController()
         let viewController = ViewController()
-        let navViewController = UINavigationController(rootViewController: viewController)
+//        let navViewController = UINavigationController(rootViewController: viewController)
+//
+//        window?.rootViewController = navViewController
         
-        window?.rootViewController = navViewController
-        
-//        window?.rootViewController =
+        window?.rootViewController = ViewController()
         
     }
 
