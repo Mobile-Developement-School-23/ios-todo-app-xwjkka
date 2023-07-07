@@ -7,7 +7,7 @@ enum NetErrors: Error {
 extension URLSession {
     func dataTask(for request: URLRequest) async throws -> (Data, URLResponse) {
 //        let data: (Data, URLResponse) =
-        return try await withCheckedThrowingContinuation({ continuation in
+        return try await withCheckedThrowingContinuation { continuation in
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
                 if let error = error {
                     continuation.resume(throwing: error)
@@ -17,10 +17,12 @@ extension URLSession {
                     continuation.resume(throwing: NetErrors.NoNameError)
                 }
             }
-            task.resume()
-            
-//            task.cancel()
-        })
+            if Task.isCancelled {
+                task.cancel()
+            } else {
+                task.resume()
+            }
+        }
 
     }
 }

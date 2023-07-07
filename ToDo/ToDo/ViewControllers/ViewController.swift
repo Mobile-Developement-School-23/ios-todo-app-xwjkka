@@ -14,10 +14,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         self.updateTableView()
     }
     
-    var list = FileCache()
+    private var list = FileCache()
 //    list.loadFromFile(paths: к)
-    var listToDoTableHeightConstraint: NSLayoutConstraint?
-    var hideDone = true
+    private var listToDoTableHeightConstraint: NSLayoutConstraint?
+    private var hideDone = true
     
     override func viewDidLoad() {
         super.viewDidLoad()

@@ -1,30 +1,11 @@
 import UIKit
 
-class ListToDoTableCell: UITableViewCell {
+final class ListToDoTableCell: UITableViewCell {
     
     static let identifier = "ListToDoTableCell"
+//    private var item: TodoItem!
     var item: TodoItem!
     
-//    override func prepareForReuse() {
-//
-////        radioButtonView.image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(weight: .regular))!.withTintColor( #colorLiteral(red: 0.6274510622, green: 0.6274510026, blue: 0.6274510026, alpha: 1), renderingMode: .alwaysOriginal)
-////
-////        cellLabel.arrangedSubviews.forEach { subview in
-////            cellLabel.removeArrangedSubview(subview)
-////            subview.removeFromSuperview()
-////        }
-////        cellTextLabel.text = ""
-////        cellTextLabel.attributedText = NSMutableAttributedString(string: "")
-////
-////        dateLabel.arrangedSubviews.forEach { subview in
-////            dateLabel.removeArrangedSubview(subview)
-////            subview.removeFromSuperview()
-////        }
-//////        dateString.text = ""
-//
-//        super.prepareForReuse()
-//
-//    }
     override func prepareForReuse() {
         super.prepareForReuse()
         radioButtonView.image = nil
@@ -99,9 +80,6 @@ class ListToDoTableCell: UITableViewCell {
     
     private lazy var dateString: UILabel = {
         var dateString = UILabel()
-//        if let deadline = item.deadline {
-//            dateString.text = DateFormatter.DateFormatter.string(from: deadline)
-//        }
         return dateString
     }()
     
