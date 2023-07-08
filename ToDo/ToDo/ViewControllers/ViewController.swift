@@ -51,7 +51,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     var list = FileCache()
     private var listToDoTableHeightConstraint: NSLayoutConstraint?
-    private var hideDone = true
+//    private var hideDone = true
+    private var hideDone = false
     private var isDirty = false
     
     override func viewDidLoad() {
@@ -92,6 +93,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 }
                 self.updateTableView()
                 updateDoneLabel()
+            } catch {
+                print(error)
             }
         }
     }
@@ -139,12 +142,13 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let showDoneButton = UIButton()
         showDoneButton.setTitle("Показать", for: .normal)
         showDoneButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 15)
-        showDoneButton.setTitleColor(#colorLiteral(red: 0, green: 0.4780646563, blue: 0.9985368848, alpha: 1), for: .normal)
+//        showDoneButton.setTitleColor(#colorLiteral(red: 0, green: 0.4780646563, blue: 0.9985368848, alpha: 1), for: .normal)
+        showDoneButton.setTitleColor(.lightGray, for: .normal)
         showDoneButton.titleLabel?.textAlignment = .center
         
         showDoneButton.addTarget(self, action: #selector(showDoneButtonTapped), for: .touchUpInside)
         
-//        showDoneButton.isEnabled = false
+        showDoneButton.isEnabled = false
         return showDoneButton
     }()
 
@@ -329,6 +333,7 @@ extension ViewController {
         } else {
             showDoneButton.setTitle("Скрыть", for: .normal)
         }
+//        loadTodoItems()
         self.updateTableView()
     }
     
@@ -385,6 +390,7 @@ extension ViewController {
         let bottomConstraint = listToDoTable.bottomAnchor.constraint(equalTo: newButton.bottomAnchor)
         bottomConstraint.isActive = true
         
+//        loadTodoItems()
         var deadlineCount = list.ListToDo.filter { $0.deadline != nil }.count
         var count = list.ListToDo.filter { $0.deadline == nil }.count
 //        print(list.ListToDo, deadlineCount, count)

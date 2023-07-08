@@ -11,7 +11,9 @@ final class DefaultNetworkingService: NetworkingService {
 
     private static let baseURL = "https://beta.mrdekk.ru/todobackend"
     private static let token = "besmirch"
-    private static var revision = 0
+    
+    static var revision = 0
+    static let revisionQueue = DispatchQueue(label: "com.ToDo.revisionQueue")
 
     
     private static func auth(URL url: URL, httpMethod: HTTPMethod, httpBody: Data? = nil) async throws -> (Data, HTTPURLResponse) {
@@ -39,7 +41,13 @@ final class DefaultNetworkingService: NetworkingService {
         }
         let (data, _) = try await auth(URL: url, httpMethod: .get)
         let serverData = try JSONDecoder().decode(ServerResponseList.self, from: data)
-        revision = serverData.revision
+        
+        revisionQueue.sync {
+            self.revision = serverData.revision
+        }
+
+
+
         return serverData.list
     }
     
@@ -62,7 +70,9 @@ final class DefaultNetworkingService: NetworkingService {
         let httpBody = try JSONEncoder().encode(request)
         let (data, _) = try await auth(URL: url, httpMethod: .patch, httpBody: httpBody)
         let serverData = try JSONDecoder().decode(ServerResponseList.self, from: data)
-        revision += 1
+        revisionQueue.sync {
+            self.revision += 1
+        }
         return serverData.list
     }
     
@@ -75,7 +85,9 @@ final class DefaultNetworkingService: NetworkingService {
         let httpBody = try JSONEncoder().encode(request)
         let (data, _) = try await auth(URL: url, httpMethod: .post, httpBody: httpBody)
         let serverData = try JSONDecoder().decode(ServerResponseElement.self, from: data)
-        revision += 1
+        revisionQueue.sync {
+            self.revision += 1
+        }
         return serverData.element
     }
     
@@ -88,7 +100,9 @@ final class DefaultNetworkingService: NetworkingService {
         let httpBody = try JSONEncoder().encode(request)
         let (data, _) = try await auth(URL: url, httpMethod: .put, httpBody: httpBody)
         let serverData = try JSONDecoder().decode(ServerResponseElement.self, from: data)
-        revision += 1
+        revisionQueue.sync {
+            self.revision += 1
+        }
         return serverData.element
     }
 
@@ -99,7 +113,9 @@ final class DefaultNetworkingService: NetworkingService {
         }
         let (data, _) = try await auth(URL: url, httpMethod: .delete)
         let serverData = try JSONDecoder().decode(ServerResponseElement.self, from: data)
-        revision += 1
+        revisionQueue.sync {
+            self.revision += 1
+        }
         return serverData.element
     }
 }
