@@ -5,24 +5,42 @@ import CocoaLumberjack  // не знаю где использовать
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ToDoItemViewControllerDelegate {
     
     func didUpdateItem(_ item: TodoItem) {
-        self.list.addToDo(item)
-//        Task {
-//            do {
-//                let elem = TodoItemConverter.convertTodoItemToServerElement(item)
-//                _ = try await DefaultNetworkingService.putData(item: elem)
-//                isDirty = false
-//            } catch {
-//                print(error)
-//            }
-//        }
-        self.updateTableView()
+        
+        if let _ = list.ListToDo.firstIndex(where: { $0.id == item.id }) {
+            isDirty = true
+            Task {
+                do {
+                    let elem = TodoItemConverter.convertTodoItemToServerElement(item)
+                    let receivedElement = try await DefaultNetworkingService.patchData(id: item.id, item: elem)
+                    isDirty = false
+                    self.list.addToDo(TodoItemConverter.convertServerElementToTodoItem(receivedElement))
+                    self.updateTableView()
+                } catch {
+                    print(error)
+                }
+            }
+        } else {
+            isDirty = true
+            Task {
+                do {
+                    let elem = TodoItemConverter.convertTodoItemToServerElement(item)
+                    _ = try await DefaultNetworkingService.putData(item: elem)
+                    isDirty = false
+                    self.list.addToDo(item)
+                    self.updateTableView()
+                } catch {
+                    print(error)
+                }
+            }
+        }
     }
     
     func didDeleteItem(_ id: String) {
-        self.list.deleteToDo(id)
+        self.isDirty = true
         Task {
             do {
                 let deleted = try await DefaultNetworkingService.deleteData(id: id)
+                self.list.deleteToDo(deleted.id)
                 self.isDirty = false
             } catch {
                 print(error)
@@ -35,7 +53,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     private var listToDoTableHeightConstraint: NSLayoutConstraint?
     private var hideDone = true
     private var isDirty = false
-//    var hideDone = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -73,8 +90,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 for item in loadedItems {
                     list.addToDo(item)
                 }
-//                list.ListToDo.append(contentsOf: loadedItems)
-                listToDoTable.reloadData()
+                self.updateTableView()
                 updateDoneLabel()
             }
         }
@@ -156,9 +172,19 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let doneAction = UIContextualAction(style: .normal, title: nil) { [self] (action, view, completion) in
             let item = self.list.ListToDo[indexPath.row]
             let temp = TodoItem(id: item.id, text: item.text, importance: item.importance, deadline: item.deadline, done: !(item.done), created: item.created, changed: Date())
-            self.list.addToDo(temp)
-            self.updateDoneLabel()
-            self.updateTableView()
+            
+            isDirty = true
+            Task {
+                do {
+                    let elem = TodoItemConverter.convertTodoItemToServerElement(temp)
+                    let receivedElement = try await DefaultNetworkingService.patchData(id: item.id, item: elem)
+                    isDirty = false
+                    self.list.addToDo(TodoItemConverter.convertServerElementToTodoItem(receivedElement))
+                    self.updateTableView()
+                } catch {
+                    print(error)
+                }
+            }
             
             completion(true)
         }

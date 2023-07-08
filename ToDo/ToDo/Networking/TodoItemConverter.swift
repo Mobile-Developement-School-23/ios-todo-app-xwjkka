@@ -38,7 +38,6 @@ final class TodoItemConverter {
     static func convertServerElementToTodoItem(_ element: ServerElement) -> TodoItem {
         let id = element.id
         let text = element.text
-//        let priority = Priority(rawValue: element.priority) ?? .basic
         var importance = Importance.regular
         if element.importance == "low" {
             importance = .unimportant
