@@ -16,10 +16,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //        window?.rootViewController = ViewController()
         let viewController = ViewController()
         let navViewController = UINavigationController(rootViewController: viewController)
-        
+
         window?.rootViewController = navViewController
         
-//        window?.rootViewController =
+//        window?.rootViewController = ViewController()
         
     }
 

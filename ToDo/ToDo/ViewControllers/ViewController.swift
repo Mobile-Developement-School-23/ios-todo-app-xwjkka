@@ -5,21 +5,60 @@ import CocoaLumberjack  // не знаю где использовать
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ToDoItemViewControllerDelegate {
     
     func didUpdateItem(_ item: TodoItem) {
-        self.list.addToDo(item)
-        self.updateTableView()
+        
+        if let _ = list.ListToDo.firstIndex(where: { $0.id == item.id }) {
+            isDirty = true
+            Task {
+                do {
+                    let elem = TodoItemConverter.convertTodoItemToServerElement(item)
+                    let receivedElement = try await DefaultNetworkingService.patchData(id: item.id, item: elem)
+                    isDirty = false
+                    self.list.addToDo(TodoItemConverter.convertServerElementToTodoItem(receivedElement))
+                    self.updateTableView()
+                } catch {
+                    print(error)
+                }
+            }
+        } else {
+            isDirty = true
+            Task {
+                do {
+                    let elem = TodoItemConverter.convertTodoItemToServerElement(item)
+                    _ = try await DefaultNetworkingService.putData(item: elem)
+                    isDirty = false
+                    self.list.addToDo(item)
+                    self.updateTableView()
+                } catch {
+                    print(error)
+                }
+            }
+        }
     }
     
     func didDeleteItem(_ id: String) {
-        self.list.deleteToDo(id)
+        self.isDirty = true
+        Task {
+            do {
+                let deleted = try await DefaultNetworkingService.deleteData(id: id)
+                self.list.deleteToDo(deleted.id)
+                self.isDirty = false
+            } catch {
+                print(error)
+            }
+        }
         self.updateTableView()
     }
     
     var list = FileCache()
-    var listToDoTableHeightConstraint: NSLayoutConstraint?
-    var hideDone = true
+    private var listToDoTableHeightConstraint: NSLayoutConstraint?
+//    private var hideDone = true
+    private var hideDone = false
+    private var isDirty = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        loadTodoItems()
         
         title = "Мои дела"
         navigationController?.navigationBar.prefersLargeTitles = true
@@ -36,16 +75,30 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         contentView.addArrangedSubview(listToDoTable)
 
         view.addSubview(addButton)
-
-        setupViewsConstraints()
         
+        setupViewsConstraints()
         setupDoneViewConstraints()
         setupAddButtonConstraints()
-        setuplistToDoTableConstraints()
 
-        updateDoneLabel()
+        setuplistToDoTableConstraints()
     }
 
+    private func loadTodoItems() {
+        Task {
+            do {
+                let elements = try await DefaultNetworkingService.getData()
+                let loadedItems = TodoItemConverter.convertServerListToTodoItemsList(elements)
+                for item in loadedItems {
+                    list.addToDo(item)
+                }
+                self.updateTableView()
+                updateDoneLabel()
+            } catch {
+                print(error)
+            }
+        }
+    }
+    
 
     func updateDoneLabel() {
         let doneList = list.ListToDo.filter { $0.done }
@@ -89,11 +142,13 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let showDoneButton = UIButton()
         showDoneButton.setTitle("Показать", for: .normal)
         showDoneButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 15)
-        showDoneButton.setTitleColor(#colorLiteral(red: 0, green: 0.4780646563, blue: 0.9985368848, alpha: 1), for: .normal)
+//        showDoneButton.setTitleColor(#colorLiteral(red: 0, green: 0.4780646563, blue: 0.9985368848, alpha: 1), for: .normal)
+        showDoneButton.setTitleColor(.lightGray, for: .normal)
         showDoneButton.titleLabel?.textAlignment = .center
         
         showDoneButton.addTarget(self, action: #selector(showDoneButtonTapped), for: .touchUpInside)
         
+        showDoneButton.isEnabled = false
         return showDoneButton
     }()
 
@@ -108,7 +163,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if list.ListToDo[indexPath.row].deadline != nil {
+        if hideDone && list.ListToDo[indexPath.row].done == true {
+            return 0
+        } else if list.ListToDo[indexPath.row].deadline != nil {
             return 66
         } else {
             return 56
@@ -119,10 +176,19 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let doneAction = UIContextualAction(style: .normal, title: nil) { [self] (action, view, completion) in
             let item = self.list.ListToDo[indexPath.row]
             let temp = TodoItem(id: item.id, text: item.text, importance: item.importance, deadline: item.deadline, done: !(item.done), created: item.created, changed: Date())
-            self.list.addToDo(temp)
             
-            self.updateDoneLabel()
-            self.updateTableView()
+            isDirty = true
+            Task {
+                do {
+                    let elem = TodoItemConverter.convertTodoItemToServerElement(temp)
+                    let receivedElement = try await DefaultNetworkingService.patchData(id: item.id, item: elem)
+                    isDirty = false
+                    self.list.addToDo(TodoItemConverter.convertServerElementToTodoItem(receivedElement))
+                    self.updateTableView()
+                } catch {
+                    print(error)
+                }
+            }
             
             completion(true)
         }
@@ -136,22 +202,30 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     -> UISwipeActionsConfiguration? {
         let infoAction = UIContextualAction(style: .normal, title: "info") { (action, view, completion) in
             let toDoItemViewController = ToDoItemViewController(item: self.list.ListToDo[indexPath.row])
-//            ViewController.delegate = ToDoItemViewControllerDelegate
             toDoItemViewController.delegate = self
             let navigationController = UINavigationController(rootViewController: toDoItemViewController)
             self.present(navigationController, animated: true, completion: nil)
-//            self.updateTableView()
             completion(true)
         }
         infoAction.image = UIImage(systemName: "info.circle")
             
         let deleteAction = UIContextualAction(style: .destructive, title: nil) { (_, _, completionHandler) in
-            self.list.deleteToDo(self.list.ListToDo[indexPath.row].id)
-            tableView.deleteRows(at: [indexPath], with: .right)
-            UIView.transition(with: self.listToDoTable,
-                              duration: 0.35,
-                              options: .curveEaseInOut,
-                              animations: { self.updateTableHeight() })
+            Task {
+                do {
+                    let deleted = try await DefaultNetworkingService.deleteData(id: self.list.ListToDo[indexPath.row].id)
+                    self.isDirty = false
+                    self.list.deleteToDo(deleted.id)
+                    tableView.deleteRows(at: [indexPath], with: .right)
+                    UIView.transition(with: self.listToDoTable,
+                                      duration: 0.35,
+                                      options: .curveEaseInOut,
+                                      animations: { self.updateTableHeight() })
+                    self.updateDoneLabel()
+                } catch {
+                    print(error)
+                }
+            }
+//            self.list.deleteToDo(self.list.ListToDo[indexPath.row].id)
         }
         
         deleteAction.image = UIImage(systemName: "trash")
@@ -170,6 +244,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         } else {
             cell.isHidden = false
         }
+        
+        cell.item = item
 
         cell.configure(with: item)
         
@@ -222,7 +298,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             ])
 
 
-        addButton.addTarget(ViewController.self, action: #selector(addButtonTapped), for: .touchUpInside)
+        addButton.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
         return addButton
     }()
 }
@@ -236,13 +312,15 @@ extension ViewController {
     }
     
     private func updateTableHeight() {
-        let deadlineCount = list.ListToDo.filter { $0.deadline != nil && $0.done == false }.count
-        var count = list.ListToDo.count - deadlineCount
+        var deadlineCount = list.ListToDo.filter { $0.deadline != nil }.count
+        var count = list.ListToDo.filter { $0.deadline == nil }.count
         if hideDone {
-            count -= list.ListToDo.filter { $0.done }.count
+            deadlineCount -= list.ListToDo.filter { $0.deadline != nil && $0.done }.count
+            count -= list.ListToDo.filter { $0.deadline == nil && $0.done }.count
         }
+        
         let height = CGFloat(deadlineCount * 66 + (count + 1) * 56)
-    
+        
         listToDoTableHeightConstraint?.constant = height
         
         view.layoutIfNeeded()
@@ -255,6 +333,7 @@ extension ViewController {
         } else {
             showDoneButton.setTitle("Скрыть", for: .normal)
         }
+//        loadTodoItems()
         self.updateTableView()
     }
     
@@ -311,11 +390,16 @@ extension ViewController {
         let bottomConstraint = listToDoTable.bottomAnchor.constraint(equalTo: newButton.bottomAnchor)
         bottomConstraint.isActive = true
         
-        let deadlineCount = list.ListToDo.filter { $0.deadline != nil && $0.done == false }.count
-        var count = list.ListToDo.count - deadlineCount
+//        loadTodoItems()
+        var deadlineCount = list.ListToDo.filter { $0.deadline != nil }.count
+        var count = list.ListToDo.filter { $0.deadline == nil }.count
+//        print(list.ListToDo, deadlineCount, count)
         if hideDone {
-            count -= list.ListToDo.filter { $0.done }.count
+            deadlineCount -= list.ListToDo.filter { $0.deadline != nil && $0.done }.count
+            count -= list.ListToDo.filter { $0.deadline == nil && $0.done }.count
         }
+        
+//        print(deadlineCount, count)
         let height = CGFloat(deadlineCount * 66 + (count + 1) * 56)
         
         let heightConstraint = listToDoTable.heightAnchor.constraint(equalToConstant: height)

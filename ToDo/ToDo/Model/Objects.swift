@@ -28,17 +28,6 @@ struct TodoItem {
     }
 }
 
-// for csv format
-//enum Keys: Int {
-//   case id = 0
-//   case text = 1
-//   case importance = 2
-//   case deadline = 3
-//   case is_completed = 4
-//   case created_date = 5
-//   case date_of_change = 6
-//}
-
 // for work with file
 enum FileCacheError: Error {
     case fileNotFound

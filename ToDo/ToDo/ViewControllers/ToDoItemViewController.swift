@@ -10,7 +10,6 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate {
         super.init(nibName: nil, bundle: nil)
     }
     
-    
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -220,12 +219,15 @@ class ToDoItemViewController: UIViewController, UITextViewDelegate {
     
     private lazy var dateButton: UIButton = {
         let dateButton = UIButton(type: .system)
-        let deadlineDate = DateFormatter.DateFormatter.string(from: Date().addingTimeInterval(3600*24))
+        var deadlineDate = DateFormatter.DateFormatter.string(from: Date().addingTimeInterval(3600*24))
+        dateButton.isHidden = true
+        if let deadline = item?.deadline {
+            dateButton.isHidden = false
+            deadlineDate =  DateFormatter.DateFormatter.string(from: deadline)
+        }
         dateButton.setTitle(deadlineDate, for: .normal)
         dateButton.setTitleColor(.systemBlue , for: .normal)
         dateButton.addTarget(self, action: #selector(openCalendar), for: .touchUpInside)
-        
-        dateButton.isHidden = true
         
         return dateButton
     }()
@@ -276,16 +278,20 @@ extension ToDoItemViewController {
             deadlineDate = DateFormatter.DateFormatter.date(from: dateButton.title(for: .normal)!)!
         }
         
-        var importanat = Importance.regular
+        var importance = Importance.regular
         if importanceControl.selectedSegmentIndex == 0 {
-            importanat = .unimportant
+            importance = .unimportant
         } else if importanceControl.selectedSegmentIndex == 2 {
-            importanat = .important
+            importance = .important
         }
-
-        let item = TodoItem(text: textView.text, importance: importanat, deadline: deadlineDate, created: Date())
         
-        delegate?.didUpdateItem(item)
+        if let item = item {
+            let newItem = TodoItem(id: item.id, text: textView.text, importance: importance, deadline: deadlineDate, done: item.done, created: item.created, changed: Date())
+            delegate?.didUpdateItem(newItem)
+        } else {
+            let newItem = TodoItem(text: textView.text, importance: importance, deadline: deadlineDate, created: Date())
+            delegate?.didUpdateItem(newItem)
+        }
         
         self.dismiss(animated: true, completion: {
             if let navController = self.navigationController {
