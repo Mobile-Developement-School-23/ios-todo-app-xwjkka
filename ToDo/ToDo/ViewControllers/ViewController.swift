@@ -4,16 +4,17 @@ import UIKit
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ToDoItemViewControllerDelegate {
     
     func didUpdateItem(_ item: TodoItem) {
-
         list.addToDo(item)
+//        list.saveToDb()
+        list.insertToDb(item: item)
         print(list.sqlReplaceStatement)
-        list.saveToDb()
         self.updateTableView()
     }
     
     func didDeleteItem(_ id: String) {
         self.list.deleteToDo(id)
-        list.saveToDb()
+//        list.saveToDb()
+        list.deleteFromDb(itemId: id)
         self.updateTableView()
     }
     
@@ -136,20 +137,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             let item = self.list.ListToDo[indexPath.row]
             let temp = TodoItem(id: item.id, text: item.text, importance: item.importance, deadline: item.deadline, done: !(item.done), created: item.created, changed: Date())
             
-//            isDirty = true
-//            Task {
-//                do {
-//                    let elem = TodoItemConverter.convertTodoItemToServerElement(temp)
-//                    let receivedElement = try await DefaultNetworkingService.patchData(id: item.id, item: elem)
-//                    isDirty = false
-//                    self.list.addToDo(TodoItemConverter.convertServerElementToTodoItem(receivedElement))
-//                    self.updateTableView()
-//                } catch {
-//                    print(error)
-//                }
-//            }
             self.list.addToDo(temp)
-            list.saveToDb()
+//            list.saveToDb()
+            self.list.updateToDb(item: temp)
             self.updateTableView()
             completion(true)
         }
@@ -173,7 +163,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let deleteAction = UIContextualAction(style: .destructive, title: nil) { (_, _, completionHandler) in
 //            Task {
             self.list.deleteToDo(self.list.ListToDo[indexPath.row].id)
-            self.list.saveToDb()
+//            self.list.saveToDb()
+            self.list.deleteFromDb(itemId: self.list.ListToDo[indexPath.row].id)
             self.updateTableView()
         }
         
