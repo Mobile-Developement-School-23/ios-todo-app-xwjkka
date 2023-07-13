@@ -1,58 +1,26 @@
 
 import UIKit
-import CocoaLumberjack  // не знаю где использовать
 
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ToDoItemViewControllerDelegate {
     
     func didUpdateItem(_ item: TodoItem) {
-        
-        if let _ = list.ListToDo.firstIndex(where: { $0.id == item.id }) {
-            isDirty = true
-            Task {
-                do {
-                    let elem = TodoItemConverter.convertTodoItemToServerElement(item)
-                    let receivedElement = try await DefaultNetworkingService.patchData(id: item.id, item: elem)
-                    isDirty = false
-                    self.list.addToDo(TodoItemConverter.convertServerElementToTodoItem(receivedElement))
-                    self.updateTableView()
-                } catch {
-                    print(error)
-                }
-            }
-        } else {
-            isDirty = true
-            Task {
-                do {
-                    let elem = TodoItemConverter.convertTodoItemToServerElement(item)
-                    _ = try await DefaultNetworkingService.putData(item: elem)
-                    isDirty = false
-                    self.list.addToDo(item)
-                    self.updateTableView()
-                } catch {
-                    print(error)
-                }
-            }
-        }
+
+        list.addToDo(item)
+        print(list.sqlReplaceStatement)
+        list.saveToDb()
+        self.updateTableView()
     }
     
     func didDeleteItem(_ id: String) {
-        self.isDirty = true
-        Task {
-            do {
-                let deleted = try await DefaultNetworkingService.deleteData(id: id)
-                self.list.deleteToDo(deleted.id)
-                self.isDirty = false
-            } catch {
-                print(error)
-            }
-        }
+        self.list.deleteToDo(id)
+        list.saveToDb()
         self.updateTableView()
     }
     
     var list = FileCache()
     private var listToDoTableHeightConstraint: NSLayoutConstraint?
-//    private var hideDone = true
-    private var hideDone = false
+    private var hideDone = true
+//    private var hideDone = false
     private var isDirty = false
     
     override func viewDidLoad() {
@@ -81,22 +49,13 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         setupAddButtonConstraints()
 
         setuplistToDoTableConstraints()
+        
+        updateDoneLabel()
     }
 
     private func loadTodoItems() {
-        Task {
-            do {
-                let elements = try await DefaultNetworkingService.getData()
-                let loadedItems = TodoItemConverter.convertServerListToTodoItemsList(elements)
-                for item in loadedItems {
-                    list.addToDo(item)
-                }
-                self.updateTableView()
-                updateDoneLabel()
-            } catch {
-                print(error)
-            }
-        }
+//        Task {
+        list.loadFromDb()
     }
     
 
@@ -142,13 +101,13 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let showDoneButton = UIButton()
         showDoneButton.setTitle("Показать", for: .normal)
         showDoneButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 15)
-//        showDoneButton.setTitleColor(#colorLiteral(red: 0, green: 0.4780646563, blue: 0.9985368848, alpha: 1), for: .normal)
-        showDoneButton.setTitleColor(.lightGray, for: .normal)
+        showDoneButton.setTitleColor(#colorLiteral(red: 0, green: 0.4780646563, blue: 0.9985368848, alpha: 1), for: .normal)
+//        showDoneButton.setTitleColor(.lightGray, for: .normal)
         showDoneButton.titleLabel?.textAlignment = .center
         
         showDoneButton.addTarget(self, action: #selector(showDoneButtonTapped), for: .touchUpInside)
         
-        showDoneButton.isEnabled = false
+//        showDoneButton.isEnabled = false
         return showDoneButton
     }()
 
@@ -177,19 +136,21 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             let item = self.list.ListToDo[indexPath.row]
             let temp = TodoItem(id: item.id, text: item.text, importance: item.importance, deadline: item.deadline, done: !(item.done), created: item.created, changed: Date())
             
-            isDirty = true
-            Task {
-                do {
-                    let elem = TodoItemConverter.convertTodoItemToServerElement(temp)
-                    let receivedElement = try await DefaultNetworkingService.patchData(id: item.id, item: elem)
-                    isDirty = false
-                    self.list.addToDo(TodoItemConverter.convertServerElementToTodoItem(receivedElement))
-                    self.updateTableView()
-                } catch {
-                    print(error)
-                }
-            }
-            
+//            isDirty = true
+//            Task {
+//                do {
+//                    let elem = TodoItemConverter.convertTodoItemToServerElement(temp)
+//                    let receivedElement = try await DefaultNetworkingService.patchData(id: item.id, item: elem)
+//                    isDirty = false
+//                    self.list.addToDo(TodoItemConverter.convertServerElementToTodoItem(receivedElement))
+//                    self.updateTableView()
+//                } catch {
+//                    print(error)
+//                }
+//            }
+            self.list.addToDo(temp)
+            list.saveToDb()
+            self.updateTableView()
             completion(true)
         }
         doneAction.image = UIImage(systemName:  "checkmark.circle.fill")
@@ -210,22 +171,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         infoAction.image = UIImage(systemName: "info.circle")
             
         let deleteAction = UIContextualAction(style: .destructive, title: nil) { (_, _, completionHandler) in
-            Task {
-                do {
-                    let deleted = try await DefaultNetworkingService.deleteData(id: self.list.ListToDo[indexPath.row].id)
-                    self.isDirty = false
-                    self.list.deleteToDo(deleted.id)
-                    tableView.deleteRows(at: [indexPath], with: .right)
-                    UIView.transition(with: self.listToDoTable,
-                                      duration: 0.35,
-                                      options: .curveEaseInOut,
-                                      animations: { self.updateTableHeight() })
-                    self.updateDoneLabel()
-                } catch {
-                    print(error)
-                }
-            }
-//            self.list.deleteToDo(self.list.ListToDo[indexPath.row].id)
+//            Task {
+            self.list.deleteToDo(self.list.ListToDo[indexPath.row].id)
+            self.list.saveToDb()
+            self.updateTableView()
         }
         
         deleteAction.image = UIImage(systemName: "trash")
@@ -339,6 +288,7 @@ extension ViewController {
     
     func updateTableView() {
         self.listToDoTable.reloadData()
+        self.updateDoneLabel()
         self.updateTableHeight()
     }
 }

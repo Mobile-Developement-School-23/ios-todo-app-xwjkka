@@ -42,9 +42,9 @@ final class DefaultNetworkingService: NetworkingService {
         let (data, _) = try await auth(URL: url, httpMethod: .get)
         let serverData = try JSONDecoder().decode(ServerResponseList.self, from: data)
         
-        revisionQueue.sync {
+//        revisionQueue.sync {
             self.revision = serverData.revision
-        }
+//        }
 
 
 
@@ -70,9 +70,9 @@ final class DefaultNetworkingService: NetworkingService {
         let httpBody = try JSONEncoder().encode(request)
         let (data, _) = try await auth(URL: url, httpMethod: .patch, httpBody: httpBody)
         let serverData = try JSONDecoder().decode(ServerResponseList.self, from: data)
-        revisionQueue.sync {
+//        revisionQueue.sync {
             self.revision += 1
-        }
+//        }
         return serverData.list
     }
     
@@ -85,9 +85,7 @@ final class DefaultNetworkingService: NetworkingService {
         let httpBody = try JSONEncoder().encode(request)
         let (data, _) = try await auth(URL: url, httpMethod: .post, httpBody: httpBody)
         let serverData = try JSONDecoder().decode(ServerResponseElement.self, from: data)
-        revisionQueue.sync {
-            self.revision += 1
-        }
+        self.revision += 1
         return serverData.element
     }
     
@@ -100,9 +98,7 @@ final class DefaultNetworkingService: NetworkingService {
         let httpBody = try JSONEncoder().encode(request)
         let (data, _) = try await auth(URL: url, httpMethod: .put, httpBody: httpBody)
         let serverData = try JSONDecoder().decode(ServerResponseElement.self, from: data)
-        revisionQueue.sync {
-            self.revision += 1
-        }
+        self.revision += 1
         return serverData.element
     }
 
@@ -113,9 +109,7 @@ final class DefaultNetworkingService: NetworkingService {
         }
         let (data, _) = try await auth(URL: url, httpMethod: .delete)
         let serverData = try JSONDecoder().decode(ServerResponseElement.self, from: data)
-        revisionQueue.sync {
-            self.revision += 1
-        }
+        self.revision += 1
         return serverData.element
     }
 }
