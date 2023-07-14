@@ -7,7 +7,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         list.addToDo(item)
 //        list.saveToDb()
         list.insertToDb(item: item)
-        print(list.sqlReplaceStatement)
         self.updateTableView()
     }
     
@@ -20,8 +19,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     var list = FileCache()
     private var listToDoTableHeightConstraint: NSLayoutConstraint?
-    private var hideDone = true
-//    private var hideDone = false
+//    private var hideDone = true
+    private var hideDone = false
     private var isDirty = false
     
     override func viewDidLoad() {
@@ -102,13 +101,13 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let showDoneButton = UIButton()
         showDoneButton.setTitle("Показать", for: .normal)
         showDoneButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 15)
-        showDoneButton.setTitleColor(#colorLiteral(red: 0, green: 0.4780646563, blue: 0.9985368848, alpha: 1), for: .normal)
-//        showDoneButton.setTitleColor(.lightGray, for: .normal)
+//        showDoneButton.setTitleColor(#colorLiteral(red: 0, green: 0.4780646563, blue: 0.9985368848, alpha: 1), for: .normal)
+        showDoneButton.setTitleColor(.lightGray, for: .normal)
         showDoneButton.titleLabel?.textAlignment = .center
         
         showDoneButton.addTarget(self, action: #selector(showDoneButtonTapped), for: .touchUpInside)
         
-//        showDoneButton.isEnabled = false
+        showDoneButton.isEnabled = false
         return showDoneButton
     }()
 

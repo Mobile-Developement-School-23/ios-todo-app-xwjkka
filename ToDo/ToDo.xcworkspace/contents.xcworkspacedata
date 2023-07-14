@@ -2,6 +2,12 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:/Users/olesyakhurmuzakiy/Desktop/ya/tt/ios-todo-app-xwjkka/ToDo/ToDo/Extentions/Entity+CoreDataClass.swift">
+   </FileRef>
+   <FileRef
+      location = "group:/Users/olesyakhurmuzakiy/Desktop/ya/tt/ios-todo-app-xwjkka/ToDo/ToDo/Extentions/Entity+CoreDataProperties.swift">
+   </FileRef>
+   <FileRef
       location = "group:ToDo.xcodeproj">
    </FileRef>
    <FileRef

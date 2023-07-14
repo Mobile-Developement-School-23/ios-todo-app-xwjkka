@@ -10,19 +10,7 @@ import SQLite
 
 extension FileCache {
     
-    var sqlReplaceStatement: String {  // честно это очень не удобно тк возвращать стоит не str
-//        var sqlReplaceStatement = "REPLACE INTO \"listToDo\" (id, text, importance, deadline, done, created, changed) VALUES \n"
-//        for index in 0..<ListToDo.count {
-//            let item = ListToDo[index]
-//            sqlReplaceStatement += "('\(item.id)', '\(item.text)', '\(item.importance)', '\(String(describing: item.deadline))', '\(item.done)', '\(item.created)', '\(String(describing: item.changed))')"
-//            if index != ListToDo.count - 1 {
-//                sqlReplaceStatement += ",\n"
-//            }
-//        }
-//        sqlReplaceStatement += ";"
-//        if ListToDo.count == 0 {
-//            sqlReplaceStatement = "DROP table listToDo"
-//        }
+    var sqlReplaceStatement: String {  // честно это очень неудобно
         var sqlReplaceStatement = String()
         
         let listToDo = Table("listToDo")
@@ -114,7 +102,6 @@ extension FileCache {
                                          done <- item.done,
                                          created <- item.created,
                                          changed <- item.changed)
-//            print(insert.type)
             try db.run(insert)
         } catch {
             print("Failed to insert item: \(error)")
