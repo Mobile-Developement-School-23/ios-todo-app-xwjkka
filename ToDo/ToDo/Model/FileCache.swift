@@ -20,7 +20,7 @@ class FileCache {
             return nil
         }
         let pathURL = documentDirectory.appendingPathComponent(path)
-        
+
         do {
             var arrayToDoJson =  Array<Any>()
             for item in self.ListToDo {
@@ -32,15 +32,15 @@ class FileCache {
         } catch {
             print("Error saving file: ")
         }
-        
+
         return pathURL
     }
-    
+
     func loadFromFile(paths: [String]) {
         if let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
             for i in paths {
                 let filePath = documentDirectory.appendingPathComponent(i)
-                
+
                 do {
                     let data = try Data(contentsOf: filePath, options: .mappedIfSafe)
                     let json = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
@@ -51,14 +51,15 @@ class FileCache {
                             }
                         }
                     }
-                    
+
                 } catch {
                     print("Error loading items from file: \(error)")
                 }
-                
+
             }
         }
     }
+    
     
     func saveToFileCSV(path: String = "ListToDo.csv") -> URL? {
         guard let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
