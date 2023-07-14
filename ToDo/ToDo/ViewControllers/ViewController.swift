@@ -161,9 +161,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             
         let deleteAction = UIContextualAction(style: .destructive, title: nil) { (_, _, completionHandler) in
 //            Task {
+            self.list.deleteFromDb(itemId: self.list.ListToDo[indexPath.row].id)
             self.list.deleteToDo(self.list.ListToDo[indexPath.row].id)
 //            self.list.saveToDb()
-            self.list.deleteFromDb(itemId: self.list.ListToDo[indexPath.row].id)
             self.updateTableView()
         }
         
