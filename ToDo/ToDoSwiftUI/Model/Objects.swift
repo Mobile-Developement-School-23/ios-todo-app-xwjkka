@@ -34,3 +34,12 @@ enum FileCacheError: Error {
     case dataReadingFailed
     case dataParsingFailed
 }
+
+extension DateFormatter {
+    static let DateFormatter: DateFormatter = {
+        let dateFormatter = Foundation.DateFormatter()
+        dateFormatter.locale = Locale(identifier: "ru_RU")
+        dateFormatter.setLocalizedDateFormatFromTemplate("dd MMMM yyyy")
+        return dateFormatter
+    }()
+}
