@@ -11,7 +11,8 @@ struct TodoItem: Identifiable {
     let text: String
     let importance: Importance
     let deadline: Date?
-    let done: Bool
+//    let done: Bool
+    var done: Bool
     let created: Date
     let changed: Date?
 

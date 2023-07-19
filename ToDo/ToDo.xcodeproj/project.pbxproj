@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0A39E7842A68209400028488 /* ItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A39E7832A68209400028488 /* ItemView.swift */; };
 		0A9490BA2A66DC5E0059C573 /* ToDoSwiftUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9490B92A66DC5E0059C573 /* ToDoSwiftUIApp.swift */; };
 		0A9490BC2A66DC5E0059C573 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9490BB2A66DC5E0059C573 /* ContentView.swift */; };
 		0A9490BE2A66DC5F0059C573 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A9490BD2A66DC5F0059C573 /* Assets.xcassets */; };
@@ -78,6 +79,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0A39E7832A68209400028488 /* ItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemView.swift; sourceTree = "<group>"; };
 		0A9490B72A66DC5E0059C573 /* ToDoSwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToDoSwiftUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A9490B92A66DC5E0059C573 /* ToDoSwiftUIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToDoSwiftUIApp.swift; sourceTree = "<group>"; };
 		0A9490BB2A66DC5E0059C573 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -190,6 +192,7 @@
 				0A9490BB2A66DC5E0059C573 /* ContentView.swift */,
 				0A9490BD2A66DC5F0059C573 /* Assets.xcassets */,
 				0A9490BF2A66DC5F0059C573 /* Preview Content */,
+				0A39E7832A68209400028488 /* ItemView.swift */,
 			);
 			path = ToDoSwiftUI;
 			sourceTree = "<group>";
@@ -669,6 +672,7 @@
 				0A9490EE2A66E3DC0059C573 /* Objects.swift in Sources */,
 				0A9490FA2A66E3E80059C573 /* TodoItem+json.swift in Sources */,
 				0A9490F92A66E3E80059C573 /* TodoItem+csv.swift in Sources */,
+				0A39E7842A68209400028488 /* ItemView.swift in Sources */,
 				0A9490EF2A66E3DC0059C573 /* FileCache.swift in Sources */,
 				0A9490BA2A66DC5E0059C573 /* ToDoSwiftUIApp.swift in Sources */,
 			);
