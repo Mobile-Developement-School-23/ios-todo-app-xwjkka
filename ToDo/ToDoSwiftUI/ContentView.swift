@@ -12,6 +12,8 @@ struct ContentView: View {
 //    private var list = FileCache()
     @State private var list = [TodoItem(text: "haha", importance: Importance.regular, created: Date()),
                 TodoItem(text: "again haha", importance: Importance.unimportant, deadline: Date(), created: Date()), TodoItem(text: "not haha", importance: Importance.regular, created: Date()), TodoItem(text: "haha", importance: Importance.important, created: Date())]
+    @State var selectedItem: TodoItem? = nil
+    
     private var countDone = 0
 
     @State private var showDone = false
@@ -21,52 +23,60 @@ struct ContentView: View {
     var body: some View {
            NavigationView {
                ZStack {
-                   VStack {
-                       List {
-                           Section {
-                               ForEach(listApp.ListToDo) { item in
-                                   Text("\(item.text)")
-//                                   CellView(item: item)
-//                                       .frame(minHeight: 24)
-//                                   .swipeActions(edge: .leading, allowsFullSwipe: true) {
-//                                       Button {
-//                                       } label: {
-//                                           Label("Make done", systemImage: "checkmark.circle")
-//                                       }
-//                                       .tint(.green)
-//                                   }
-//                                   .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-//                                       Button(role: .destructive) {
-//                                           print("Deleting item")
-//                                       } label: {
-//                                           Label("Delete", systemImage: "trash.fill")
-//                                       }
-//                                       Button() {
-//                                           print("Information")
-//                                       } label: {
-//                                           Label("Info", systemImage: "info.circle")
-//                                       }
-//                                   }
+                   List {
+                       Section {
+//                               ForEach(listApp.ListToDo) { item in
+                           ForEach($list) { item in
+//                               self.selectedItem = item
+                               CellView(item: item)
+                                   .frame(minHeight: 24)
+                               .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                   Button {
+                                       if let index = list.firstIndex(where: { $0.id == item.id }) {
+                                           list[index].done.toggle()
+                                       }
+
+                                   } label: {
+                                       Label("Make done", systemImage: "checkmark.circle")
+                                   }
+                                   .tint(.green)
                                }
-                               
-                               Button {
-                                   print("New add button tapped")
-                                   addAll()
-                                   self.isItemViewPresented = true
-                               } label: {
-                                   Text("Новое")
-                                       .foregroundColor(.gray)
+                               .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                   Button(role: .destructive) {
+                                       print("Deleting item")
+                                   } label: {
+                                       Label("Delete", systemImage: "trash.fill")
+                                   }
+                                   Button() {
+                                       print("Information")
+                                       self.isItemViewPresented = true
+                                   } label: {
+                                       Label("Info", systemImage: "info.circle")
+                                   }
+                                   .sheet(isPresented: $isItemViewPresented) {
+//                                       ItemView(list: $list, item: item)
+                                       ItemView(list: $list)
+                                   }
                                }
-                               .frame(height: 24)
-                           } header: {
-                               CustomHeader(showDone: $showDone, list: $list)
-                           } footer: {
-                                   Text("©xwjkka")
                            }
+                           
+                           Button {
+                               print("New add button tapped")
+//                                   addAll()
+                               self.isItemViewPresented = true
+                           } label: {
+                               Text("Новое")
+                                   .foregroundColor(.gray)
+                           }
+                           .frame(height: 24)
+                       } header: {
+                           CustomHeader(showDone: $showDone, list: $list)
+                       } footer: {
+                               Text("©xwjkka")
                        }
-                       .listStyle(.insetGrouped)
-                       .navigationTitle("Мои дела")
                    }
+                   .listStyle(.insetGrouped)
+                   .navigationTitle("Мои дела")
                    
                    AddButtonView(isItemViewPresented: $isItemViewPresented, list: $list)
                }
@@ -97,6 +107,7 @@ struct AddButtonView: View {
 
             }
             .sheet(isPresented: $isItemViewPresented) {
+//                @var item = TodoItem(text: "", importance: .regular, created: Date())
                 ItemView(list: $list)
             }
         }
@@ -204,8 +215,10 @@ struct customToggleStyle: ToggleStyle {
             } else {
                 Image(systemName: "circle")
                     .foregroundColor(.gray)
+//                    .frame(width: 24, height: 24)
+//                    .scaledToFit()
             }
         })
-        .frame(width: 24, height: 24)
+        
     }
 }
